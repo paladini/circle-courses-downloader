@@ -183,48 +183,14 @@ def extract_current_lesson_ids(page: str) -> list[str]:
     return ids
 
 
-def build_course_url(site_url: str | None, course_url: str | None, course_id: str | None) -> str | None:
-    if course_url:
-        return course_url
-    if not course_id:
-        return None
-    if course_id.startswith(("http://", "https://")):
-        return course_id
-    if not site_url:
-        raise ValueError("Pass --site-url when using --course-id.")
-    return urljoin(site_url.rstrip("/") + "/", f"c/{course_id.strip('/')}")
-
-
 def infer_login_url_from_origin(
-    site_url: str | None = None,
-    login_url: str | None = None,
     course_url: str | None = None,
 ) -> str | None:
-    if login_url:
-        return login_url
-    if site_url:
-        return urljoin(site_url.rstrip("/") + "/", "users/sign_in")
     if course_url:
         parsed = urlparse(course_url)
         if parsed.scheme and parsed.netloc:
             return f"{parsed.scheme}://{parsed.netloc}/users/sign_in"
     return None
-
-
-def infer_login_url_from_lessons(
-    lessons: list[Lesson],
-    site_url: str | None = None,
-    login_url: str | None = None,
-    course_url: str | None = None,
-) -> str:
-    inferred = infer_login_url_from_origin(site_url=site_url, login_url=login_url, course_url=course_url)
-    if inferred:
-        return inferred
-    for lesson in lessons:
-        parsed = urlparse(lesson.url)
-        if parsed.scheme and parsed.netloc:
-            return f"{parsed.scheme}://{parsed.netloc}/users/sign_in"
-    raise ValueError("Could not infer login URL. Pass --site-url or --login-url.")
 
 
 def collect_html_files(paths: list[Path]) -> list[Path]:

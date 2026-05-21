@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-import getpass
-import os
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+from shutil import rmtree
 
 from .extractors import classify_provider, extract_lessons_from_html, find_video_urls
 from .models import Lesson
@@ -25,24 +24,15 @@ LESSONS_WAIT_JS = """() => {
 
 @dataclass
 class BrowserAuth:
-    email: str | None
-    password: str | None
-    login_url: str | None
+    login_url: str
     storage_state: Path
+    profile_dir: Path
     headless: bool
     timeout_ms: int
 
 
-def resolve_secret(value: str | None, env_name: str | None, prompt: str, password: bool = False) -> str | None:
-    if value:
-        return value
-    if env_name and os.getenv(env_name):
-        return os.getenv(env_name)
-    if password:
-        entered = getpass.getpass(prompt)
-    else:
-        entered = input(prompt)
-    return entered.strip() or None
+class AuthRequiredError(RuntimeError):
+    pass
 
 
 def resource_urls(page) -> list[str]:
@@ -52,90 +42,54 @@ def resource_urls(page) -> list[str]:
         return []
 
 
-def fill_first(page, selectors: list[str], value: str, timeout_ms: int) -> bool:
-    selector_timeout = min(timeout_ms, 3_000)
-    for selector in selectors:
-        try:
-            locator = page.locator(selector).first
-            locator.wait_for(state="visible", timeout=selector_timeout)
-            locator.fill(value)
-            return True
-        except Exception:  # noqa: BLE001 - try the next likely Circle selector.
-            continue
-    return False
-
-
-def perform_login(page, auth: BrowserAuth, manual: bool = False) -> None:
-    page.goto(auth.login_url, wait_until="domcontentloaded", timeout=auth.timeout_ms)
-
-    if manual:
-        print("A browser window is open. Finish login there, then press Enter here.")
-        input()
-    else:
-        if not auth.email or not auth.password:
-            raise RuntimeError("Email and password are required unless --manual-login is used.")
-        email_ok = fill_first(
-            page,
-            [
-                "input[type='email']",
-                "input[name='user[email]']",
-                "input[name='email']",
-                "#user_email",
-            ],
-            auth.email,
-            auth.timeout_ms,
-        )
-        password_ok = fill_first(
-            page,
-            [
-                "input[type='password']",
-                "input[name='user[password]']",
-                "input[name='password']",
-                "#user_password",
-            ],
-            auth.password,
-            auth.timeout_ms,
-        )
-        if not email_ok or not password_ok:
-            raise RuntimeError("Could not find Circle email/password fields. Try --manual-login.")
-
-        try:
-            page.locator("button[type='submit'], input[type='submit']").first.click(timeout=auth.timeout_ms)
-        except Exception:
-            page.keyboard.press("Enter")
-
-    page.wait_for_load_state("networkidle", timeout=auth.timeout_ms)
-    if "/users/sign_in" in page.url:
-        raise RuntimeError("Login did not complete. Check credentials, captcha, or 2FA; try --manual-login if needed.")
-
+def save_session(page, auth: BrowserAuth) -> None:
     auth.storage_state.parent.mkdir(parents=True, exist_ok=True)
     page.context.storage_state(path=str(auth.storage_state))
     print(f"Saved browser session to {auth.storage_state}")
 
 
-def login_and_save_state(auth: BrowserAuth, manual: bool = False) -> None:
+def profile_dir_from_session(storage_state: Path) -> Path:
+    return storage_state.with_name(f"{storage_state.stem}-browser-profile")
+
+
+def reset_auth_state(auth: BrowserAuth) -> None:
+    if auth.storage_state.exists():
+        auth.storage_state.unlink()
+    if auth.profile_dir.exists():
+        rmtree(auth.profile_dir)
+
+
+def open_persistent_context(playwright, auth: BrowserAuth, needs_login: bool):
+    auth.profile_dir.mkdir(parents=True, exist_ok=True)
+    context = playwright.chromium.launch_persistent_context(
+        user_data_dir=str(auth.profile_dir),
+        headless=False if needs_login else auth.headless,
+    )
+    page = context.pages[0] if context.pages else context.new_page()
+    return context, page
+
+
+def wait_for_manual_login(page, auth: BrowserAuth) -> None:
+    print("A browser window is open. Log in to Circle there, then return here and press Enter.")
+    print("The downloader will keep using this same browser profile after you press Enter.")
+    input()
     try:
-        from playwright.sync_api import sync_playwright
-    except ImportError as exc:
-        raise RuntimeError("Playwright is not installed. Run: python -m pip install -r requirements.txt") from exc
-
-    with sync_playwright() as playwright:
-        browser = playwright.chromium.launch(headless=auth.headless)
-        context = browser.new_context()
-        page = context.new_page()
-        try:
-            perform_login(page, auth, manual=manual)
-        finally:
-            browser.close()
+        page.wait_for_load_state("networkidle", timeout=auth.timeout_ms)
+    except Exception:  # noqa: BLE001 - some logged-in pages keep long-polling; the course check below is authoritative.
+        pass
+    save_session(page, auth)
 
 
-def ensure_storage_state(auth: BrowserAuth, force_login: bool, manual_login: bool) -> None:
-    if auth.storage_state.exists() and not force_login:
-        return
-    login_and_save_state(auth, manual=manual_login)
+def open_course_page(page, course_url: str, timeout_ms: int) -> None:
+    print(f"Opening course: {course_url}")
+    page.goto(course_url, wait_until="domcontentloaded", timeout=timeout_ms)
 
 
-def probe_lessons_with_browser(args, lessons: list[Lesson]) -> list[Lesson]:
+def is_login_page(page) -> bool:
+    return "/users/sign_in" in page.url or "/users/sign_up" in page.url
+
+
+def discover_and_probe_with_browser(args, course_url: str) -> list[Lesson]:
     try:
         from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
         from playwright.sync_api import sync_playwright
@@ -143,79 +97,63 @@ def probe_lessons_with_browser(args, lessons: list[Lesson]) -> list[Lesson]:
         raise RuntimeError("Playwright is not installed. Run: python -m pip install -r requirements.txt") from exc
 
     auth = BrowserAuth(
-        email=args.email,
-        password=args.password,
         login_url=args.login_url,
-        storage_state=args.storage_state,
+        storage_state=args.session,
+        profile_dir=profile_dir_from_session(args.session),
         headless=args.headless,
         timeout_ms=args.timeout_ms,
     )
-    ensure_storage_state(auth, args.force_login, args.manual_login)
 
     with sync_playwright() as playwright:
-        browser = playwright.chromium.launch(headless=args.headless)
-        context = browser.new_context(storage_state=str(args.storage_state))
-        page = context.new_page()
-
-        for lesson in lessons:
-            try:
-                page.goto(lesson.url, wait_until="domcontentloaded", timeout=args.timeout_ms)
-                if "/users/sign_in" in page.url:
-                    raise RuntimeError("Stored session is not authenticated. Re-run with --force-login.")
-                try:
-                    page.wait_for_function(VIDEO_WAIT_JS, timeout=args.video_timeout_ms)
-                except PlaywrightTimeoutError:
-                    pass
-
-                content = page.content()
-                urls = find_video_urls(content, extra_urls=resource_urls(page))
-                lesson.video_urls = urls
-                lesson.provider = classify_provider(urls[0]) if urls else "not-found"
-                print(f"[{lesson.index:02d}] {lesson.provider:17} {lesson.title}")
-            except Exception as exc:  # noqa: BLE001 - keep probing the rest of the course.
-                lesson.provider = "error"
-                lesson.video_urls = []
-                print(f"[{lesson.index:02d}] error             {lesson.title} ({exc})", file=sys.stderr)
-
-        context.storage_state(path=str(args.storage_state))
-        browser.close()
-
-    return lessons
-
-
-def discover_lessons_with_browser(args, course_url: str) -> list[Lesson]:
-    try:
-        from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
-        from playwright.sync_api import sync_playwright
-    except ImportError as exc:
-        raise RuntimeError("Playwright is not installed. Run: python -m pip install -r requirements.txt") from exc
-
-    auth = BrowserAuth(
-        email=args.email,
-        password=args.password,
-        login_url=args.login_url,
-        storage_state=args.storage_state,
-        headless=args.headless,
-        timeout_ms=args.timeout_ms,
-    )
-    ensure_storage_state(auth, args.force_login, args.manual_login)
-
-    with sync_playwright() as playwright:
-        browser = playwright.chromium.launch(headless=args.headless)
-        context = browser.new_context(storage_state=str(args.storage_state))
-        page = context.new_page()
+        needs_login = args.force_login or not auth.profile_dir.exists()
+        if args.force_login:
+            reset_auth_state(auth)
+        context, page = open_persistent_context(playwright, auth, needs_login=needs_login)
         try:
-            page.goto(course_url, wait_until="domcontentloaded", timeout=args.timeout_ms)
-            if "/users/sign_in" in page.url:
-                raise RuntimeError("Stored session is not authenticated. Re-run with --force-login.")
+            open_course_page(page, course_url, args.timeout_ms)
+            if is_login_page(page) and not needs_login:
+                print("The saved session is not authenticated for this course. Reopening a visible browser.")
+                context.close()
+                needs_login = True
+                context, page = open_persistent_context(playwright, auth, needs_login=needs_login)
+                open_course_page(page, course_url, args.timeout_ms)
+
+            if needs_login or is_login_page(page):
+                if is_login_page(page):
+                    print("The course opened a login page.")
+                wait_for_manual_login(page, auth)
+                open_course_page(page, course_url, args.timeout_ms)
+                if is_login_page(page):
+                    raise AuthRequiredError("Circle still shows the login page after authentication.")
+
             try:
                 page.wait_for_function(LESSONS_WAIT_JS, timeout=args.timeout_ms)
             except PlaywrightTimeoutError:
                 pass
+
             lessons = extract_lessons_from_html(page.content(), base_url=page.url)
             if not lessons:
                 raise RuntimeError("No Circle lesson links were found on the course page.")
-            context.storage_state(path=str(args.storage_state))
+
+            for lesson in lessons:
+                try:
+                    page.goto(lesson.url, wait_until="domcontentloaded", timeout=args.timeout_ms)
+                    if is_login_page(page):
+                        raise RuntimeError("The saved browser session is not authenticated.")
+                    try:
+                        page.wait_for_function(VIDEO_WAIT_JS, timeout=args.video_timeout_ms)
+                    except PlaywrightTimeoutError:
+                        pass
+                    urls = find_video_urls(page.content(), extra_urls=resource_urls(page))
+                    lesson.video_urls = urls
+                    lesson.provider = classify_provider(urls[0]) if urls else "not-found"
+                    print(f"[{lesson.index:02d}] {lesson.provider:17} {lesson.title}")
+                except Exception as exc:  # noqa: BLE001 - keep probing the rest of the course.
+                    lesson.provider = "error"
+                    lesson.video_urls = []
+                    print(f"[{lesson.index:02d}] error             {lesson.title} ({exc})", file=sys.stderr)
+
+            save_session(page, auth)
             return lessons
         finally:
-            browser.close()
+            context.close()

@@ -9,6 +9,8 @@ from typing import Iterable
 
 from .models import Lesson
 
+DEFAULT_FORMAT = "bv*+ba/best"
+
 
 def safe_filename(value: str, max_length: int = 120) -> str:
     value = re.sub(r"[<>:\"/\\|?*\x00-\x1F]", " ", value)
@@ -34,15 +36,11 @@ def build_ytdlp_command(args: argparse.Namespace, lesson: Lesson, video_url: str
         "--merge-output-format",
         "mp4",
         "-f",
-        args.format,
+        DEFAULT_FORMAT,
         "-o",
         str(output_dir / filename),
         video_url,
     ]
-    if args.ytdlp_cookies_file:
-        command[-1:-1] = ["--cookies", str(args.ytdlp_cookies_file)]
-    if args.ytdlp_cookies_from_browser:
-        command[-1:-1] = ["--cookies-from-browser", args.ytdlp_cookies_from_browser]
     return command
 
 
@@ -60,4 +58,4 @@ def download_lessons(args: argparse.Namespace, lessons: list[Lesson]) -> None:
         subprocess.run(command, check=True)
 
     if not found_any:
-        print("No downloadable video URLs found in the manifest. Run probe-browser, probe, or probe-local first.")
+        print("No downloadable video URLs found.")
