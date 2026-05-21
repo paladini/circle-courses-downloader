@@ -1,0 +1,16 @@
+.venv/
+.auth/
+.env
+downloads/
+cookies.txt
+*.mp4
+*.m4a
+*.webm
+*.part
+__pycache__/
+*.egg-info/
+.pytest_cache/
+manifest.probed.json
+manifest.probed.csv
+
+training/

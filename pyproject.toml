@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=77.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "circle-courses-downloader"
+version = "0.1.0"
+description = "Personal downloader for Circle course lesson videos accessible from your own account."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [
+  { name = "Fernando Paladini" }
+]
+keywords = ["circle", "courses", "downloader", "yt-dlp", "playwright"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: End Users/Desktop",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Internet :: WWW/HTTP :: Browsers",
+]
+dependencies = [
+  "playwright>=1.53.0",
+  "requests>=2.32.0",
+  "yt-dlp>=2024.12.13",
+]
+
+[project.scripts]
+circle-courses-downloader = "circle_courses_downloader.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
