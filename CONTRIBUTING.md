@@ -6,18 +6,18 @@ This is a small personal-use downloader. Keep changes focused, readable, and res
 
 ```powershell
 python -m venv .venv
-.\.venv\Scripts\python -m pip install -e .
+.\.venv\Scripts\python -m pip install -r requirements.txt
 .\.venv\Scripts\python -m playwright install chromium
 ```
 
 Run a quick local check:
 
 ```powershell
-.\.venv\Scripts\python -m py_compile .\download_course.py .\src\circle_courses_downloader\*.py
-.\.venv\Scripts\python .\download_course.py manifest
-.\.venv\Scripts\python .\download_course.py inspect-page --html .\exemplo-pagina-video.html
+.\.venv\Scripts\python -m compileall .\src .\download_course.py
+.\.venv\Scripts\circle-course-downloader --help
+.\.venv\Scripts\circle-course-downloader download --help
 ```
 
 ## Security
 
-Do not commit credentials, cookies, browser storage state, or downloaded course media.
+Do not commit browser storage state or downloaded course media.
