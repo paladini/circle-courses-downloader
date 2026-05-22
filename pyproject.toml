@@ -9,6 +9,7 @@ description = "Personal downloader for Circle course lesson videos accessible fr
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
+license-files = ["LICENSE"]
 authors = [
   { name = "Fernando Paladini" }
 ]
@@ -21,12 +22,27 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Topic :: Internet :: WWW/HTTP :: Browsers",
 ]
 dependencies = [
   "playwright>=1.53.0",
   "yt-dlp>=2024.12.13",
 ]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3.0",
+  "ruff>=0.8.0",
+]
+publish = [
+  "build>=1.2.2",
+  "twine>=5.1.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/paladini/circle-courses-downloader"
+Issues = "https://github.com/paladini/circle-courses-downloader/issues"
 
 [project.scripts]
 circle-course-downloader = "circle_courses_downloader.cli:main"
@@ -37,3 +53,6 @@ where = ["src"]
 [tool.ruff]
 line-length = 120
 target-version = "py311"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
