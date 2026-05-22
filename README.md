@@ -1,23 +1,103 @@
 # Circle Course Downloader
 
-Download videos from Circle courses you can access with your own account.
-Authentication happens only in the browser: the tool opens a dedicated Chromium
-profile, you log in manually, and that browser profile is reused for future
-downloads.
+[![PyPI](https://img.shields.io/pypi/v/circle-course-downloader?color=2f80ed)](https://pypi.org/project/circle-course-downloader/)
+[![Python](https://img.shields.io/pypi/pyversions/circle-course-downloader)](https://pypi.org/project/circle-course-downloader/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-This tool doesn't bypass DRM, paywalls, captchas, 2FA, or access controls. Use
-it only for content you are authorized to download for personal offline viewing.
+A small, practical CLI for saving Circle course videos that you can already access with your own account.
 
-## Install from PyPI
+Circle Course Downloader opens a dedicated Chromium profile, lets you sign in normally, discovers course lessons through the authenticated page, and downloads the video streams with `yt-dlp`. It is built for personal offline viewing, backups, and unreliable connections.
 
-```powershell
+> This project is unofficial and is not affiliated with Circle. It does not bypass DRM, paywalls, 2FA, captchas, or access controls. Use it only for content you are authorized to view and download.
+
+## Highlights
+
+- Browser-only authentication: no terminal passwords, copied cookies, or pasted tokens.
+- Reusable local session stored in a dedicated Playwright Chromium profile.
+- Course lesson discovery from real Circle course pages.
+- Video URL detection for Circle HLS, direct video links, YouTube, Vimeo, Wistia, Loom, Mux, and Cloudflare Stream.
+- `yt-dlp` downloads with resume support and MP4 merge output.
+- `manifest.json` and `manifest.csv` exports for auditing what was found.
+- Dry-run mode for inspecting generated download commands before saving media.
+
+## Installation
+
+Install the package and the Playwright browser runtime:
+
+```bash
 python -m pip install circle-course-downloader
 python -m playwright install chromium
 ```
 
-## Install from source
+Python 3.11 or newer is required.
 
-Use this path when you cloned the repository locally.
+## Quick Start
+
+Run the downloader with a full Circle course URL:
+
+```bash
+circle-course-downloader download "https://your-community.example.com/c/course-slug"
+```
+
+On the first run, a Chromium window opens. Sign in to Circle in that browser, return to the terminal, and press `Enter`.
+
+After that, the CLI reuses the same dedicated browser profile for future downloads:
+
+```bash
+circle-course-downloader download "https://your-community.example.com/c/another-course"
+```
+
+Downloaded videos are saved to `downloads/` by default.
+
+## How It Works
+
+1. Opens the requested Circle course page in a persistent Chromium profile.
+2. If login is required, waits while you authenticate in the browser.
+3. Saves the browser session under `.auth/`.
+4. Discovers lesson links from the course page.
+5. Visits each lesson, finds candidate video URLs, and classifies the provider.
+6. Writes a manifest and downloads each available video with `yt-dlp`.
+
+The default local files are:
+
+```text
+.auth/session-browser-profile/
+.auth/session.json
+downloads/manifest.json
+downloads/manifest.csv
+downloads/01 - Lesson title.mp4
+```
+
+Generated manifests can contain signed media URLs. Do not publish or commit them.
+
+## CLI Usage
+
+```bash
+circle-course-downloader download [OPTIONS] COURSE_URL
+```
+
+| Option | Description |
+| --- | --- |
+| `--output-dir PATH` | Save videos and manifests somewhere other than `downloads/`. |
+| `--session PATH` | Use a different exported session file. The browser profile is stored next to it. |
+| `--force-login` | Delete the saved auth state and open a fresh visible login browser. |
+| `--headless` | Run Chromium without a visible window after a saved browser profile exists. |
+| `--dry-run` | Discover lessons and print the `yt-dlp` commands without downloading videos. |
+
+Examples:
+
+```bash
+circle-course-downloader download "https://your-community.example.com/c/course-slug" --dry-run
+circle-course-downloader download "https://your-community.example.com/c/course-slug" --output-dir "./my-videos"
+circle-course-downloader download "https://your-community.example.com/c/course-slug" --force-login
+circle-course-downloader download "https://your-community.example.com/c/course-slug" --headless
+```
+
+`--headless` is useful only after a saved browser profile already exists. First login always uses a visible browser window.
+
+## Install From Source
+
+Clone the repository, create a virtual environment, install the package, and install Chromium for Playwright:
 
 ```powershell
 python -m venv .venv
@@ -25,117 +105,63 @@ python -m venv .venv
 .\.venv\Scripts\python -m playwright install chromium
 ```
 
-For development and publishing tools, install `requirements.txt` after the
-package:
+Then run the CLI from the virtual environment:
+
+```powershell
+.\.venv\Scripts\circle-course-downloader download "https://your-community.example.com/c/course-slug"
+```
+
+For development and publishing tools:
 
 ```powershell
 .\.venv\Scripts\python -m pip install -r requirements.txt
 ```
 
-## Download a course
+## Development
 
-```powershell
-circle-course-downloader download "https://your-circle-site.com/c/course-slug"
-```
-
-If you installed from source in a virtual environment, run:
-
-```powershell
-.\.venv\Scripts\circle-course-downloader download "https://your-circle-site.com/c/course-slug"
-```
-
-## What happens next
-
-On the first run, a Chromium window opens. Log in to Circle in that browser,
-then return to the terminal and press `Enter`.
-
-The tool stores the dedicated browser profile and an exported session file
-under:
-
-```text
-.auth/session-browser-profile/
-.auth/session.json
-```
-
-Then it opens the course in the same authenticated browser profile, discovers
-the lessons, extracts the video URLs, and downloads the videos into
-`downloads/`.
-
-The downloader also writes a local manifest beside the downloaded videos:
-
-```text
-downloads/manifest.json
-downloads/manifest.csv
-```
-
-Generated manifests can contain signed media URLs, so don't commit them.
-
-## Download another course
-
-Use the same command with another course URL. The saved session is reused
-automatically.
-
-```powershell
-circle-course-downloader download "https://your-circle-site.com/c/another-course"
-```
-
-## Reset login
-
-Use `--force-login` to open the browser and create a fresh session.
-
-```powershell
-circle-course-downloader download "https://your-circle-site.com/c/course-slug" --force-login
-```
-
-## Optional flags
-
-```powershell
-circle-course-downloader download "https://your-circle-site.com/c/course-slug" --output-dir ".\my-videos"
-circle-course-downloader download "https://your-circle-site.com/c/course-slug" --session ".auth/my-site.json"
-circle-course-downloader download "https://your-circle-site.com/c/course-slug" --dry-run
-circle-course-downloader download "https://your-circle-site.com/c/course-slug" --headless
-```
-
-`--headless` only hides Chromium after a saved browser profile already exists.
-First login always opens a visible browser window, and the downloader keeps
-using that same browser profile after you press `Enter`.
-
-## Build and publish
-
-Install the package and publishing tools:
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\python -m pip install .
-.\.venv\Scripts\python -m pip install -r requirements.txt
-```
-
-Run checks:
+Run the local checks before opening a pull request:
 
 ```powershell
 .\.venv\Scripts\python -m pytest
+.\.venv\Scripts\python -m compileall .\src
 .\.venv\Scripts\python -m build
 .\.venv\Scripts\python -m twine check dist/*
+.\.venv\Scripts\circle-course-downloader --help
+.\.venv\Scripts\circle-course-downloader download --help
 ```
 
-Publish to TestPyPI first:
+The package metadata is defined in `pyproject.toml`, and the CLI entry point is:
 
-```powershell
-.\.venv\Scripts\python -m twine upload --repository testpypi dist/*
+```text
+circle-course-downloader = circle_courses_downloader.cli:main
 ```
 
-After validating the TestPyPI package, publish to PyPI:
+## Safety And Privacy
 
-```powershell
-.\.venv\Scripts\python -m twine upload dist/*
-```
+Circle Course Downloader uses its own Chromium profile under `.auth/`. It does not read cookies, sessions, or tokens from your default browser.
 
-## Security notes
+Never commit:
 
-Never commit `.auth/`, downloaded videos, or generated manifests.
+- `.auth/`
+- downloaded videos
+- generated manifests
+- signed media URLs
 
-The tool doesn't read tokens or cookies from your default browser. It uses its
-own dedicated Chromium profile under `.auth/`.
+If a course redirects back to the login page, the saved session is not authenticated for that course. Run again with `--force-login`.
 
-Circle HLS URLs are usually signed and expire. Download soon after the tool
-discovers them.
+## Contributing
+
+Contributions are welcome when they keep the project focused on the browser-only Circle course download flow.
+
+Good first improvements include:
+
+- Better provider detection for embedded video platforms.
+- Clearer error messages for expired sessions or unavailable lessons.
+- More fixture-based parser tests.
+- Cross-platform documentation polish.
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md) before opening a pull request.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
