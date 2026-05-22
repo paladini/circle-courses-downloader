@@ -1,5 +1,3 @@
-@C:\Users\Fernando Paladini\.codex\RTK.md
-
 # Repository Instructions
 
 This project is a public Python CLI for downloading Circle course videos that the user can already access through their own account.
