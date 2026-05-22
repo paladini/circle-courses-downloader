@@ -140,15 +140,6 @@ circle-course-downloader = circle_courses_downloader.cli:main
 
 Circle Course Downloader uses its own Chromium profile under `.auth/`. It does not read cookies, sessions, or tokens from your default browser.
 
-Never commit:
-
-- `.auth/`
-- downloaded videos
-- generated manifests
-- signed media URLs
-
-If a course redirects back to the login page, the saved session is not authenticated for that course. Run again with `--force-login`.
-
 ## Contributing
 
 Contributions are welcome when they keep the project focused on the browser-only Circle course download flow.
