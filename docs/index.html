@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Circle Course Downloader | Save Course Videos Offline</title>
+    <meta
+      name="description"
+      content="Download videos from Circle courses for offline viewing. A simple Python CLI that opens your browser, finds course lessons, and saves videos locally."
+    />
+    <meta
+      name="keywords"
+      content="Circle course downloader, Circle videos, download course videos, offline course viewing, Python CLI, yt-dlp, Playwright"
+    />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="theme-color" content="#f2eee3" />
+    <link rel="canonical" href="https://paladini.github.io/circle-courses-downloader/" />
+    <link rel="sitemap" type="application/xml" href="/circle-courses-downloader/sitemap.xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Circle Course Downloader" />
+    <meta property="og:title" content="Circle Course Downloader" />
+    <meta
+      property="og:description"
+      content="Download videos from Circle courses for offline viewing with a simple browser-based command-line tool."
+    />
+    <meta property="og:url" content="https://paladini.github.io/circle-courses-downloader/" />
+    <meta
+      property="og:image"
+      content="https://paladini.github.io/circle-courses-downloader/assets/circle-course-downloader-preview.png"
+    />
+    <meta property="og:image:alt" content="Circle Course Downloader command-line preview with course lessons saved locally" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Circle Course Downloader" />
+    <meta
+      name="twitter:description"
+      content="A simple CLI to save Circle course videos locally for offline viewing."
+    />
+    <meta
+      name="twitter:image"
+      content="https://paladini.github.io/circle-courses-downloader/assets/circle-course-downloader-preview.png"
+    />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Circle Course Downloader",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Windows, macOS, Linux",
+        "description": "Download videos from Circle courses for offline viewing. Circle Course Downloader is a Python command-line tool that opens a browser, discovers course lessons, and saves videos locally.",
+        "url": "https://paladini.github.io/circle-courses-downloader/",
+        "codeRepository": "https://github.com/paladini/circle-courses-downloader",
+        "downloadUrl": "https://pypi.org/project/circle-course-downloader/",
+        "softwareVersion": "0.1.3",
+        "license": "https://github.com/paladini/circle-courses-downloader/blob/master/LICENSE",
+        "programmingLanguage": "Python",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "author": {
+          "@type": "Person",
+          "name": "Fernando Paladini",
+          "url": "https://github.com/paladini"
+        }
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is Circle Course Downloader?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Circle Course Downloader is a command-line tool that helps save videos from Circle courses locally for offline viewing."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I install Circle Course Downloader?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Install it with pip by running python -m pip install circle-course-downloader, then install the Playwright Chromium browser with python -m playwright install chromium."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does it have a graphical interface?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Circle Course Downloader is a lightweight command-line tool. It opens a browser only for the sign-in step."
+            }
+          }
+        ]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://paladini.github.io/circle-courses-downloader/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "GitHub Repository",
+            "item": "https://github.com/paladini/circle-courses-downloader"
+          }
+        ]
+      }
+    </script>
+
+    <style>
+      :root {
+        color-scheme: light;
+        --paper: oklch(95% 0.025 92);
+        --paper-deep: oklch(89% 0.046 82);
+        --ink: oklch(22% 0.035 68);
+        --muted: oklch(42% 0.025 70);
+        --line: oklch(78% 0.035 78);
+        --olive: oklch(42% 0.075 129);
+        --olive-dark: oklch(28% 0.07 128);
+        --red: oklch(53% 0.17 29);
+        --gold: oklch(74% 0.14 82);
+        --blue: oklch(43% 0.095 232);
+        --code: oklch(17% 0.035 92);
+        --code-line: oklch(31% 0.035 95);
+        --shadow: 0 24px 90px color-mix(in oklch, var(--ink) 18%, transparent);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background:
+          linear-gradient(90deg, color-mix(in oklch, var(--line) 26%, transparent) 1px, transparent 1px),
+          linear-gradient(color-mix(in oklch, var(--line) 24%, transparent) 1px, transparent 1px),
+          var(--paper);
+        background-size: 42px 42px;
+        color: var(--ink);
+        font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+        font-size: 18px;
+        line-height: 1.55;
+        text-rendering: optimizeLegibility;
+      }
+
+      a {
+        color: inherit;
+        text-decoration-thickness: 0.08em;
+        text-underline-offset: 0.2em;
+      }
+
+      a:hover {
+        color: var(--red);
+      }
+
+      .page {
+        overflow: hidden;
+      }
+
+      .shell {
+        width: min(1120px, calc(100% - 32px));
+        margin: 0 auto;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        border-bottom: 1px solid color-mix(in oklch, var(--line) 70%, transparent);
+        background: color-mix(in oklch, var(--paper) 88%, transparent);
+        backdrop-filter: blur(16px);
+      }
+
+      .nav {
+        display: flex;
+        min-height: 68px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 0.9rem;
+        font-weight: 800;
+        letter-spacing: 0;
+        text-decoration: none;
+      }
+
+      .brand-mark {
+        display: grid;
+        width: 36px;
+        height: 36px;
+        place-items: center;
+        border: 2px solid var(--ink);
+        background: var(--gold);
+        color: var(--ink);
+        font-size: 1.1rem;
+        line-height: 1;
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: clamp(14px, 3vw, 30px);
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 0.86rem;
+        font-weight: 700;
+      }
+
+      .nav-links a {
+        text-decoration: none;
+      }
+
+      .hero {
+        min-height: calc(100svh - 68px);
+        display: grid;
+        align-items: center;
+        padding: clamp(56px, 8vw, 112px) 0 clamp(34px, 5vw, 70px);
+      }
+
+      .hero-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 0.92fr) minmax(360px, 1.08fr);
+        gap: clamp(34px, 6vw, 84px);
+        align-items: center;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        width: fit-content;
+        align-items: center;
+        gap: 10px;
+        margin: 0 0 22px;
+        border: 1px solid var(--ink);
+        background: color-mix(in oklch, var(--paper-deep) 72%, white);
+        padding: 7px 10px;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      .eyebrow::before {
+        content: "";
+        width: 9px;
+        height: 9px;
+        background: var(--red);
+        box-shadow: 14px 0 0 var(--gold), 28px 0 0 var(--olive);
+      }
+
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        line-height: 0.95;
+        letter-spacing: 0;
+      }
+
+      h1 {
+        max-width: 760px;
+        font-size: clamp(3.6rem, 10.4vw, 8.8rem);
+        font-weight: 900;
+      }
+
+      .hero-copy {
+        max-width: 660px;
+        margin: 28px 0 0;
+        color: var(--muted);
+        font-size: clamp(1.08rem, 2vw, 1.35rem);
+        line-height: 1.55;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin-top: 34px;
+      }
+
+      .button {
+        display: inline-flex;
+        min-height: 48px;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid var(--ink);
+        padding: 12px 18px;
+        box-shadow: 5px 5px 0 var(--ink);
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 0.94rem;
+        font-weight: 850;
+        text-decoration: none;
+        transition:
+          transform 180ms ease,
+          box-shadow 180ms ease,
+          background 180ms ease;
+      }
+
+      .button:hover {
+        transform: translate(2px, 2px);
+        box-shadow: 3px 3px 0 var(--ink);
+        color: var(--ink);
+      }
+
+      .button.primary {
+        background: var(--red);
+        color: oklch(98% 0.014 92);
+      }
+
+      .button.secondary {
+        background: var(--paper);
+      }
+
+      .preview-frame {
+        position: relative;
+        transform: rotate(1.3deg);
+      }
+
+      .preview-frame::before {
+        position: absolute;
+        inset: 18px -18px -18px 18px;
+        z-index: -1;
+        border: 2px solid var(--ink);
+        background: var(--gold);
+        content: "";
+      }
+
+      .preview-image {
+        display: block;
+        width: 100%;
+        height: auto;
+        border: 2px solid var(--ink);
+        box-shadow: var(--shadow);
+      }
+
+      .command-strip {
+        margin-top: clamp(28px, 4vw, 54px);
+        border-block: 2px solid var(--ink);
+        background: var(--code);
+        color: oklch(93% 0.02 93);
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        overflow: hidden;
+      }
+
+      .command-inner {
+        display: flex;
+        width: max-content;
+        min-width: 100%;
+        gap: 36px;
+        padding: 18px 0;
+        animation: slide 34s linear infinite;
+      }
+
+      .command-inner span {
+        white-space: nowrap;
+      }
+
+      .command-inner b {
+        color: var(--gold);
+        font-weight: 700;
+      }
+
+      .section {
+        padding: clamp(58px, 9vw, 118px) 0;
+      }
+
+      .section.alt {
+        background: color-mix(in oklch, var(--paper-deep) 58%, var(--paper));
+        border-block: 1px solid var(--line);
+      }
+
+      .section-heading {
+        display: grid;
+        grid-template-columns: minmax(0, 0.86fr) minmax(280px, 0.6fr);
+        gap: clamp(28px, 5vw, 80px);
+        align-items: end;
+        margin-bottom: clamp(28px, 5vw, 62px);
+      }
+
+      h2 {
+        font-size: clamp(2.4rem, 6vw, 5.7rem);
+        font-weight: 900;
+      }
+
+      .lead {
+        margin: 0;
+        color: var(--muted);
+        font-size: clamp(1rem, 1.55vw, 1.18rem);
+      }
+
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+      }
+
+      .step,
+      .feature,
+      .faq-item {
+        border: 2px solid var(--ink);
+        background: color-mix(in oklch, var(--paper) 84%, white);
+      }
+
+      .step {
+        min-height: 250px;
+        padding: 22px;
+      }
+
+      .step-number {
+        display: block;
+        margin-bottom: 34px;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 0.85rem;
+        font-weight: 900;
+        color: var(--red);
+      }
+
+      h3 {
+        margin-bottom: 14px;
+        font-size: clamp(1.38rem, 2.6vw, 2rem);
+        line-height: 1.06;
+      }
+
+      .step p,
+      .feature p,
+      .faq-item p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .install-panel {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(320px, 0.76fr);
+        gap: clamp(26px, 5vw, 76px);
+        align-items: stretch;
+      }
+
+      .terminal {
+        border: 2px solid var(--ink);
+        background: var(--code);
+        box-shadow: 9px 9px 0 var(--ink);
+        color: oklch(94% 0.02 91);
+        overflow: hidden;
+      }
+
+      .terminal-bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-bottom: 2px solid var(--ink);
+        background: var(--paper-deep);
+        padding: 11px 14px;
+      }
+
+      .dot {
+        width: 11px;
+        height: 11px;
+        border: 1px solid var(--ink);
+        border-radius: 50%;
+        background: var(--red);
+      }
+
+      .dot:nth-child(2) {
+        background: var(--gold);
+      }
+
+      .dot:nth-child(3) {
+        background: var(--olive);
+      }
+
+      pre {
+        margin: 0;
+        padding: clamp(22px, 4vw, 34px);
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        font-size: clamp(0.86rem, 1.65vw, 1.02rem);
+        line-height: 1.75;
+      }
+
+      code {
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      }
+
+      .install-notes {
+        display: grid;
+        align-content: start;
+        gap: 18px;
+      }
+
+      .note {
+        border-left: 8px solid var(--olive);
+        background: color-mix(in oklch, var(--paper) 84%, white);
+        padding: 18px 20px;
+      }
+
+      .note strong {
+        display: block;
+        margin-bottom: 6px;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      .features {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+      }
+
+      .feature {
+        min-height: 210px;
+        padding: 20px;
+      }
+
+      .feature-label {
+        display: inline-block;
+        margin-bottom: 28px;
+        border: 1px solid var(--ink);
+        background: var(--gold);
+        padding: 4px 8px;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 0.72rem;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .faq {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+
+      .faq-item {
+        padding: 24px;
+      }
+
+      .footer {
+        padding: 38px 0;
+        border-top: 2px solid var(--ink);
+        background: var(--code);
+        color: oklch(92% 0.02 90);
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      .footer-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+      }
+
+      .footer a {
+        color: inherit;
+      }
+
+      @keyframes slide {
+        from {
+          transform: translateX(0);
+        }
+        to {
+          transform: translateX(-50%);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 1ms !important;
+          animation-iteration-count: 1 !important;
+          scroll-behavior: auto !important;
+          transition-duration: 1ms !important;
+        }
+      }
+
+      @media (max-width: 920px) {
+        .hero {
+          min-height: auto;
+        }
+
+        .hero-grid,
+        .section-heading,
+        .install-panel {
+          grid-template-columns: 1fr;
+        }
+
+        .preview-frame {
+          max-width: 680px;
+          transform: rotate(0.6deg);
+        }
+
+        .steps,
+        .features,
+        .faq {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      @media (max-width: 640px) {
+        body {
+          font-size: 16px;
+        }
+
+        .nav {
+          align-items: flex-start;
+          flex-direction: column;
+          padding: 16px 0;
+        }
+
+        .nav-links {
+          width: 100%;
+          justify-content: space-between;
+        }
+
+        h1 {
+          font-size: clamp(3.1rem, 17vw, 5.8rem);
+        }
+
+        .actions {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .button {
+          width: 100%;
+        }
+
+        .steps,
+        .features,
+        .faq {
+          grid-template-columns: 1fr;
+        }
+
+        .step,
+        .feature {
+          min-height: auto;
+        }
+
+        .footer-row {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="topbar">
+        <nav class="shell nav" aria-label="Primary navigation">
+          <a class="brand" href="#top" aria-label="Circle Course Downloader home">
+            <span class="brand-mark" aria-hidden="true">C</span>
+            <span>Circle Course Downloader</span>
+          </a>
+          <div class="nav-links">
+            <a href="#install">Install</a>
+            <a href="#features">Features</a>
+            <a href="https://github.com/paladini/circle-courses-downloader">GitHub</a>
+          </div>
+        </nav>
+      </header>
+
+      <main id="top">
+        <section class="hero" aria-labelledby="hero-title">
+          <div class="shell hero-grid">
+            <div>
+              <p class="eyebrow">Python CLI for Circle courses</p>
+              <h1 id="hero-title">Save Circle course videos offline.</h1>
+              <p class="hero-copy">
+                Circle Course Downloader is a simple command-line app that opens your browser, finds course lessons,
+                and saves the videos to your computer.
+              </p>
+              <div class="actions" aria-label="Project links">
+                <a class="button primary" href="#install">Install now</a>
+                <a class="button secondary" href="https://github.com/paladini/circle-courses-downloader">View on GitHub</a>
+                <a class="button secondary" href="https://pypi.org/project/circle-course-downloader/">Open PyPI</a>
+              </div>
+            </div>
+
+            <figure class="preview-frame">
+              <img
+                class="preview-image"
+                src="assets/circle-course-downloader-preview.png"
+                width="1200"
+                height="760"
+                alt="Circle Course Downloader preview showing a terminal command and a saved course lesson list"
+                fetchpriority="high"
+              />
+            </figure>
+          </div>
+
+          <div class="command-strip" aria-label="Example command">
+            <div class="command-inner">
+              <span><b>$</b> circle-course-downloader download "https://your-community.com/c/course"</span>
+              <span><b>$</b> python -m pip install circle-course-downloader</span>
+              <span><b>$</b> circle-course-downloader download "https://your-community.com/c/course"</span>
+              <span><b>$</b> python -m pip install circle-course-downloader</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" aria-labelledby="how-title">
+          <div class="shell">
+            <div class="section-heading">
+              <h2 id="how-title">From course page to local folder.</h2>
+              <p class="lead">
+                No extension. No app store. No complicated setup. Run one command, sign in through the browser, and let
+                the downloader organize the lessons.
+              </p>
+            </div>
+
+            <div class="steps">
+              <article class="step">
+                <span class="step-number">01</span>
+                <h3>Open the course</h3>
+                <p>Paste a Circle course URL into the CLI and it opens a dedicated Chromium browser.</p>
+              </article>
+              <article class="step">
+                <span class="step-number">02</span>
+                <h3>Find the lessons</h3>
+                <p>The tool reads the course page, visits each lesson, and detects available video streams.</p>
+              </article>
+              <article class="step">
+                <span class="step-number">03</span>
+                <h3>Save the videos</h3>
+                <p>Lessons are downloaded with clean filenames, plus JSON and CSV manifests for the course.</p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="section alt" id="install" aria-labelledby="install-title">
+          <div class="shell install-panel">
+            <div>
+              <div class="section-heading" style="display: block; margin-bottom: 24px">
+                <h2 id="install-title">Install in two commands.</h2>
+              </div>
+              <div class="terminal" aria-label="Installation commands">
+                <div class="terminal-bar" aria-hidden="true">
+                  <span class="dot"></span>
+                  <span class="dot"></span>
+                  <span class="dot"></span>
+                </div>
+                <pre><code>python -m pip install circle-course-downloader
+python -m playwright install chromium
+
+circle-course-downloader download "https://your-community.com/c/course"</code></pre>
+              </div>
+            </div>
+
+            <aside class="install-notes" aria-label="Installation notes">
+              <div class="note">
+                <strong>Works where Python works.</strong>
+                Windows, macOS, and Linux are supported with Python 3.11 or newer.
+              </div>
+              <div class="note">
+                <strong>Browser sign-in feels familiar.</strong>
+                The first run opens Chromium. After that, the saved browser profile can be reused.
+              </div>
+              <div class="note">
+                <strong>Good for travel and spotty internet.</strong>
+                Download course videos once and watch them later from a local folder.
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="section" id="features" aria-labelledby="features-title">
+          <div class="shell">
+            <div class="section-heading">
+              <h2 id="features-title">Built for courses, not clutter.</h2>
+              <p class="lead">
+                The project stays intentionally small: discover lessons, save videos, and produce useful manifests.
+              </p>
+            </div>
+
+            <div class="features">
+              <article class="feature">
+                <span class="feature-label">Browser login</span>
+                <h3>Sign in normally</h3>
+                <p>Use a real browser window for the first login instead of pasting credentials into a terminal.</p>
+              </article>
+              <article class="feature">
+                <span class="feature-label">Manifests</span>
+                <h3>Know what was found</h3>
+                <p>Each run writes JSON and CSV files with lesson titles, URLs, providers, and download status.</p>
+              </article>
+              <article class="feature">
+                <span class="feature-label">Dry run</span>
+                <h3>Preview first</h3>
+                <p>Use dry-run mode to inspect the generated download commands before writing video files.</p>
+              </article>
+              <article class="feature">
+                <span class="feature-label">Open source</span>
+                <h3>Easy to inspect</h3>
+                <p>The code is small, MIT licensed, and published on GitHub for fixes and improvements.</p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="section alt" aria-labelledby="faq-title">
+          <div class="shell">
+            <div class="section-heading">
+              <h2 id="faq-title">Questions people ask.</h2>
+              <p class="lead">Short answers for users comparing tools or trying to understand what this project does.</p>
+            </div>
+
+            <div class="faq">
+              <article class="faq-item">
+                <h3>Is this a desktop app?</h3>
+                <p>No. It is a command-line tool. It opens a browser only when it needs you to sign in.</p>
+              </article>
+              <article class="faq-item">
+                <h3>Where do files go?</h3>
+                <p>By default, videos and manifests are saved in a local <code>downloads/</code> folder.</p>
+              </article>
+              <article class="faq-item">
+                <h3>What does it download?</h3>
+                <p>It scans Circle lesson pages and saves the detected video stream for each lesson.</p>
+              </article>
+              <article class="faq-item">
+                <h3>Can I contribute?</h3>
+                <p>Yes. The GitHub repository has setup instructions, tests, and contribution notes.</p>
+              </article>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <div class="shell footer-row">
+          <span>Circle Course Downloader is open source under the MIT license.</span>
+          <a href="https://github.com/paladini/circle-courses-downloader">github.com/paladini/circle-courses-downloader</a>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>

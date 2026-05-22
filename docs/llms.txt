@@ -1,0 +1,35 @@
+# Circle Course Downloader
+
+Circle Course Downloader is an open-source Python command-line tool for saving videos from Circle courses locally for offline viewing.
+
+Canonical site: https://paladini.github.io/circle-courses-downloader/
+GitHub repository: https://github.com/paladini/circle-courses-downloader
+PyPI package: https://pypi.org/project/circle-course-downloader/
+
+## What it does
+
+- Opens a dedicated Chromium browser for Circle sign-in.
+- Discovers course lessons from a Circle course page.
+- Detects video streams on lesson pages.
+- Downloads videos locally using yt-dlp.
+- Writes JSON and CSV manifests with lesson metadata.
+
+## Installation
+
+```bash
+python -m pip install circle-course-downloader
+python -m playwright install chromium
+```
+
+## Usage
+
+```bash
+circle-course-downloader download "https://your-community.com/c/course"
+```
+
+## Important pages
+
+- Project homepage: https://paladini.github.io/circle-courses-downloader/
+- Repository: https://github.com/paladini/circle-courses-downloader
+- Package: https://pypi.org/project/circle-course-downloader/
+- License: https://github.com/paladini/circle-courses-downloader/blob/master/LICENSE

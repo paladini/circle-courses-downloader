@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://paladini.github.io/circle-courses-downloader/sitemap.xml
