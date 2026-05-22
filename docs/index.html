@@ -3,716 +3,309 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Circle Course Downloader | Download Circle Course Videos</title>
+    <title>Circle Courses Downloader | Free & Open Source Offline Course Backup</title>
     <meta
       name="description"
-      content="Download videos from Circle courses for offline viewing. Install a simple Python CLI, open the course in your browser, and save lessons locally."
-    />
-    <meta
-      name="keywords"
-      content="Circle course downloader, Circle videos, download Circle course videos, offline course viewing, Python CLI, yt-dlp, Playwright"
+      content="Circle Courses Downloader is a free and open source Python CLI that helps you save Circle course videos for personal offline viewing using your own account."
     />
     <meta name="robots" content="index, follow, max-image-preview:large" />
-    <meta name="theme-color" content="#08111f" />
+    <meta name="theme-color" content="#0b1020" />
     <link rel="canonical" href="https://paladini.github.io/circle-courses-downloader/" />
     <link rel="sitemap" type="application/xml" href="/circle-courses-downloader/sitemap.xml" />
 
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Circle Course Downloader" />
-    <meta property="og:title" content="Circle Course Downloader" />
+    <meta property="og:site_name" content="Circle Courses Downloader" />
+    <meta property="og:title" content="Circle Courses Downloader" />
     <meta
       property="og:description"
-      content="Download videos from Circle courses for offline viewing with a simple Python command-line tool."
+      content="Free and open source CLI to download Circle courses and videos for offline personal/fair-use viewing."
     />
     <meta property="og:url" content="https://paladini.github.io/circle-courses-downloader/" />
     <meta
       property="og:image"
       content="https://paladini.github.io/circle-courses-downloader/assets/circle-course-downloader-preview.png"
     />
-    <meta property="og:image:alt" content="Circle Course Downloader video library preview" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Circle Course Downloader" />
+    <meta name="twitter:title" content="Circle Courses Downloader" />
     <meta
       name="twitter:description"
-      content="A simple CLI to download Circle course videos for offline viewing."
+      content="A beautiful, free and open source way to save Circle courses for offline viewing."
     />
     <meta
       name="twitter:image"
       content="https://paladini.github.io/circle-courses-downloader/assets/circle-course-downloader-preview.png"
     />
 
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": "Circle Course Downloader",
-        "applicationCategory": "UtilitiesApplication",
-        "operatingSystem": "Windows, macOS, Linux",
-        "description": "Circle Course Downloader is a Python command-line tool that downloads videos from Circle courses for offline viewing.",
-        "url": "https://paladini.github.io/circle-courses-downloader/",
-        "codeRepository": "https://github.com/paladini/circle-courses-downloader",
-        "downloadUrl": "https://pypi.org/project/circle-course-downloader/",
-        "softwareVersion": "0.1.3",
-        "license": "https://github.com/paladini/circle-courses-downloader/blob/master/LICENSE",
-        "programmingLanguage": "Python",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD"
-        },
-        "author": {
-          "@type": "Person",
-          "name": "Fernando Paladini",
-          "url": "https://github.com/paladini"
-        }
-      }
-    </script>
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        "mainEntity": [
-          {
-            "@type": "Question",
-            "name": "What is Circle Course Downloader?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Circle Course Downloader is a Python CLI that downloads videos from Circle courses and saves them locally for offline viewing."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Where can I download Circle Course Downloader?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "The package is available on PyPI at https://pypi.org/project/circle-course-downloader/."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "How do I use Circle Course Downloader?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Install it with pip, install Playwright Chromium, then run circle-course-downloader download followed by a Circle course URL."
-            }
-          }
-        ]
-      }
-    </script>
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-          {
-            "@type": "ListItem",
-            "position": 1,
-            "name": "Home",
-            "item": "https://paladini.github.io/circle-courses-downloader/"
-          },
-          {
-            "@type": "ListItem",
-            "position": 2,
-            "name": "PyPI Package",
-            "item": "https://pypi.org/project/circle-course-downloader/"
-          }
-        ]
-      }
-    </script>
-
     <style>
       :root {
-        color-scheme: dark;
-        --night: #08111f;
-        --night-2: #0d1b2f;
-        --ink: #101827;
-        --surface: #f7f1e8;
-        --surface-2: #ebe3d5;
-        --text: #f7f1e8;
-        --muted: #a9b7cc;
-        --body: #394456;
-        --line: rgba(255, 255, 255, 0.13);
-        --coral: #ff6b4a;
-        --mint: #5bf1b2;
-        --sky: #78b7ff;
-        --lime: #d7ff68;
-        --violet: #9d88ff;
-        --radius: 24px;
-        --shadow: 0 34px 90px rgba(0, 0, 0, 0.28);
+        --bg: #050912;
+        --bg-soft: #0b1427;
+        --panel: rgba(18, 27, 46, 0.75);
+        --line: rgba(173, 196, 255, 0.22);
+        --text: #f4f8ff;
+        --muted: #b8c8e8;
+        --brand: #7ee2b8;
+        --brand-2: #79b8ff;
+        --accent: #ff8a7a;
+        --radius: 22px;
+        --shadow: 0 28px 80px rgba(1, 7, 20, 0.5);
       }
 
       * {
         box-sizing: border-box;
       }
 
-      html {
-        scroll-behavior: smooth;
-      }
-
       body {
         margin: 0;
-        background: var(--surface);
-        color: var(--ink);
+        color: var(--text);
+        background:
+          radial-gradient(circle at 10% 10%, rgba(126, 226, 184, 0.16), transparent 30%),
+          radial-gradient(circle at 90% 0%, rgba(121, 184, 255, 0.18), transparent 34%),
+          linear-gradient(180deg, #050912 0%, #09132a 40%, #050912 100%);
         font-family:
-          "Aptos", "Segoe UI", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-        font-size: 17px;
-        line-height: 1.65;
-        text-rendering: optimizeLegibility;
+          Inter, "Segoe UI", "Aptos", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        line-height: 1.6;
       }
 
       a {
         color: inherit;
       }
 
-      .page {
-        min-height: 100vh;
-        overflow: hidden;
-      }
-
       .shell {
-        width: min(1180px, calc(100% - 40px));
+        width: min(1120px, calc(100% - 36px));
         margin: 0 auto;
-      }
-
-      .hero-wrap {
-        position: relative;
-        isolation: isolate;
-        overflow: hidden;
-        background:
-          radial-gradient(circle at 18% 18%, rgba(91, 241, 178, 0.18), transparent 28%),
-          radial-gradient(circle at 86% 12%, rgba(255, 107, 74, 0.2), transparent 24%),
-          linear-gradient(135deg, #08111f 0%, #10223b 52%, #08111f 100%);
-        color: var(--text);
-      }
-
-      .hero-wrap::before {
-        position: absolute;
-        inset: 0;
-        z-index: -1;
-        background-image:
-          linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-        background-size: 54px 54px;
-        mask-image: linear-gradient(to bottom, black 0%, transparent 85%);
-        content: "";
       }
 
       .nav {
         display: flex;
-        min-height: 76px;
         align-items: center;
         justify-content: space-between;
-        gap: 24px;
-      }
-
-      .brand,
-      .nav-links,
-      .button,
-      .pill,
-      .mini,
-      .stat-label,
-      .step-number,
-      .kbd,
-      .footer {
-        font-family:
-          "Aptos", "Segoe UI", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        gap: 20px;
+        padding: 26px 0;
       }
 
       .brand {
         display: inline-flex;
         align-items: center;
         gap: 12px;
-        color: var(--text);
         font-weight: 800;
         text-decoration: none;
       }
 
-      .brand-mark {
+      .logo {
+        width: 36px;
+        height: 36px;
+        border-radius: 11px;
+        background: linear-gradient(140deg, var(--brand), var(--brand-2));
+        color: #071026;
         display: grid;
-        width: 38px;
-        height: 38px;
         place-items: center;
-        border-radius: 12px;
-        background: linear-gradient(135deg, var(--mint), var(--sky));
-        color: var(--night);
-        font-weight: 950;
+        font-weight: 900;
       }
 
       .nav-links {
         display: flex;
-        align-items: center;
-        gap: clamp(16px, 3vw, 34px);
+        gap: 22px;
+        font-size: 0.95rem;
         color: var(--muted);
-        font-size: 0.94rem;
-        font-weight: 700;
       }
 
       .nav-links a {
         text-decoration: none;
       }
 
-      .nav-links a:hover {
-        color: var(--text);
-      }
-
       .hero {
         display: grid;
-        min-height: calc(100svh - 76px);
-        grid-template-columns: minmax(0, 0.94fr) minmax(420px, 1.06fr);
-        gap: clamp(38px, 6vw, 88px);
+        grid-template-columns: minmax(0, 1fr) minmax(340px, 0.92fr);
+        gap: 34px;
         align-items: center;
-        padding: clamp(56px, 8vw, 102px) 0 clamp(72px, 9vw, 132px);
+        padding: 30px 0 88px;
       }
 
       .pill {
         display: inline-flex;
-        width: fit-content;
         align-items: center;
-        gap: 10px;
-        margin: 0 0 22px;
-        border: 1px solid rgba(255, 255, 255, 0.18);
+        gap: 8px;
+        border: 1px solid var(--line);
         border-radius: 999px;
-        background: rgba(255, 255, 255, 0.07);
-        padding: 8px 13px;
-        color: #d9e5f7;
-        font-size: 0.82rem;
-        font-weight: 800;
-      }
-
-      .pulse {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: var(--mint);
-        box-shadow: 0 0 0 7px rgba(91, 241, 178, 0.15);
-      }
-
-      h1,
-      h2,
-      h3 {
-        margin: 0;
-        letter-spacing: 0;
+        padding: 7px 12px;
+        color: #d8e7ff;
+        background: rgba(255, 255, 255, 0.03);
+        font-size: 0.8rem;
+        font-weight: 700;
       }
 
       h1 {
-        max-width: 740px;
-        font-size: clamp(3.7rem, 8.4vw, 7.65rem);
-        line-height: 0.88;
-        font-weight: 930;
+        margin: 18px 0 0;
+        font-size: clamp(2.25rem, 6vw, 4.6rem);
+        line-height: 1;
+        letter-spacing: -0.03em;
       }
 
-      .accent {
-        color: var(--mint);
-      }
-
-      .hero-copy {
-        max-width: 660px;
-        margin: 28px 0 0;
-        color: #c3d0e1;
-        font-size: clamp(1.08rem, 1.7vw, 1.32rem);
+      .hero p {
+        margin: 18px 0 0;
+        color: var(--muted);
+        max-width: 60ch;
       }
 
       .actions {
         display: flex;
         flex-wrap: wrap;
-        gap: 14px;
-        margin-top: 34px;
+        gap: 12px;
+        margin-top: 24px;
       }
 
       .button {
-        display: inline-flex;
-        min-height: 50px;
-        align-items: center;
-        justify-content: center;
+        border: 1px solid transparent;
         border-radius: 999px;
-        padding: 13px 20px;
-        font-size: 0.95rem;
-        font-weight: 850;
+        padding: 12px 18px;
+        font-weight: 700;
         text-decoration: none;
-        transition:
-          transform 180ms ease,
-          background 180ms ease,
-          border-color 180ms ease;
+        transition: transform 0.15s ease;
       }
 
       .button:hover {
-        transform: translateY(-2px);
+        transform: translateY(-1px);
       }
 
       .button.primary {
-        background: var(--mint);
-        color: var(--night);
+        background: linear-gradient(130deg, var(--brand), var(--brand-2));
+        color: #071026;
       }
 
       .button.secondary {
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        background: rgba(255, 255, 255, 0.07);
-        color: var(--text);
+        background: rgba(255, 255, 255, 0.04);
+        border-color: var(--line);
       }
 
-      .hero-visual {
-        position: relative;
+      .hero-card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 26px;
+        padding: 16px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(10px);
       }
 
-      .preview {
-        display: block;
+      .hero-card img {
         width: 100%;
         height: auto;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 32px;
-        box-shadow: var(--shadow);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
       }
 
-      .download-card {
-        position: absolute;
-        right: -8px;
-        bottom: -24px;
-        width: min(330px, 74%);
-        border: 1px solid rgba(255, 255, 255, 0.22);
-        border-radius: 24px;
-        background: rgba(8, 17, 31, 0.86);
-        padding: 16px;
-        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.34);
-        backdrop-filter: blur(18px);
-      }
-
-      .progress-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        margin-bottom: 12px;
-        color: var(--text);
-        font-size: 0.9rem;
-        font-weight: 800;
-      }
-
-      .bar {
-        height: 10px;
-        overflow: hidden;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.12);
-      }
-
-      .bar span {
-        display: block;
-        width: 84%;
-        height: 100%;
-        border-radius: inherit;
-        background: linear-gradient(90deg, var(--mint), var(--sky));
-      }
-
-      .stats {
+      .meta {
+        margin-top: 12px;
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 12px;
-        margin-top: 30px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
       }
 
-      .stat {
-        border-top: 1px solid rgba(255, 255, 255, 0.16);
-        padding-top: 14px;
+      .meta div {
+        border-radius: 12px;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
       }
 
-      .stat strong {
+      .meta strong {
         display: block;
-        color: var(--text);
-        font-size: 1.38rem;
-        line-height: 1.1;
+        font-size: 1rem;
       }
 
-      .stat-label {
-        color: var(--muted);
-        font-size: 0.82rem;
-        font-weight: 750;
-      }
-
-      .section {
-        padding: clamp(76px, 10vw, 132px) 0;
-      }
-
-      .section.surface {
-        background: var(--surface);
-      }
-
-      .section.soft {
-        background: #e9f1ee;
-      }
-
-      .section.dark {
-        background: var(--night);
-        color: var(--text);
-      }
-
-      .section-head {
-        display: grid;
-        grid-template-columns: minmax(0, 0.9fr) minmax(300px, 0.62fr);
-        gap: clamp(26px, 6vw, 86px);
-        align-items: end;
-        margin-bottom: clamp(34px, 5vw, 62px);
+      section {
+        padding: 38px 0;
       }
 
       h2 {
-        max-width: 780px;
-        font-size: clamp(2.4rem, 5.6vw, 5.4rem);
-        line-height: 0.95;
-        font-weight: 930;
+        margin: 0 0 14px;
+        font-size: clamp(1.7rem, 4vw, 2.8rem);
+        letter-spacing: -0.02em;
       }
 
       .lead {
         margin: 0;
-        color: var(--body);
-        font-size: clamp(1rem, 1.5vw, 1.18rem);
-      }
-
-      .dark .lead {
         color: var(--muted);
+        max-width: 70ch;
       }
 
-      .flow {
+      .grid-3,
+      .grid-2 {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 18px;
+        gap: 14px;
+        margin-top: 20px;
       }
 
-      .step {
-        min-height: 270px;
-        border: 1px solid rgba(16, 24, 39, 0.12);
+      .grid-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .grid-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
         border-radius: var(--radius);
-        background: rgba(255, 255, 255, 0.58);
-        padding: 24px;
+        padding: 20px;
       }
 
-      .step-number {
-        display: inline-grid;
-        width: 42px;
-        height: 42px;
-        place-items: center;
-        margin-bottom: 48px;
-        border-radius: 14px;
-        background: var(--ink);
-        color: var(--mint);
-        font-size: 0.86rem;
-        font-weight: 900;
-      }
-
-      h3 {
-        margin-bottom: 12px;
-        font-size: clamp(1.35rem, 2.2vw, 1.9rem);
-        line-height: 1.05;
-      }
-
-      .step p,
-      .feature p,
-      .faq p {
-        margin: 0;
-        color: var(--body);
-      }
-
-      .install-grid {
-        display: grid;
-        grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.85fr);
-        gap: clamp(28px, 5vw, 76px);
-        align-items: center;
-      }
-
-      .terminal {
-        overflow: hidden;
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        border-radius: 30px;
-        background: #050b14;
-        box-shadow: var(--shadow);
-      }
-
-      .terminal-top {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 14px 18px;
-      }
-
-      .mini {
+      .card p,
+      .code-block p {
+        margin: 8px 0 0;
         color: var(--muted);
-        font-size: 0.8rem;
-        font-weight: 800;
       }
 
-      .lights {
-        display: flex;
-        gap: 8px;
-      }
-
-      .lights span {
-        width: 11px;
-        height: 11px;
-        border-radius: 50%;
-      }
-
-      .lights span:nth-child(1) {
-        background: var(--coral);
-      }
-
-      .lights span:nth-child(2) {
-        background: var(--lime);
-      }
-
-      .lights span:nth-child(3) {
-        background: var(--mint);
+      .code-block {
+        background: #040913;
+        border-radius: var(--radius);
+        border: 1px solid rgba(183, 213, 255, 0.24);
+        overflow: auto;
       }
 
       pre {
         margin: 0;
-        padding: clamp(22px, 4vw, 34px);
-        color: #e7eef9;
-        white-space: pre-wrap;
-        overflow-wrap: anywhere;
-        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-        font-size: clamp(0.88rem, 1.45vw, 1rem);
-        line-height: 1.9;
+        padding: 20px;
+        color: #e8f0ff;
+        font-size: 0.92rem;
+        line-height: 1.75;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
       }
 
-      .cmd-comment {
-        color: #7f8da3;
+      .fair-use {
+        border-left: 3px solid var(--accent);
+        background: rgba(255, 138, 122, 0.12);
       }
 
-      .install-copy {
-        color: var(--muted);
+      footer {
+        padding: 42px 0 56px;
+        color: #9db2d7;
+        font-size: 0.94rem;
       }
 
-      .install-copy .button {
-        margin-top: 24px;
-      }
-
-      .features {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 16px;
-      }
-
-      .feature {
-        min-height: 230px;
-        border: 1px solid rgba(16, 24, 39, 0.1);
-        border-radius: var(--radius);
-        background: #fffaf2;
-        padding: 24px;
-      }
-
-      .feature .kbd {
-        display: inline-flex;
-        margin-bottom: 36px;
-        border-radius: 999px;
-        background: #e8f7ef;
-        padding: 6px 10px;
-        color: #145d45;
-        font-size: 0.74rem;
-        font-weight: 900;
-        text-transform: uppercase;
-      }
-
-      .faq-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 18px;
-      }
-
-      .faq {
-        border: 1px solid rgba(255, 255, 255, 0.13);
-        border-radius: var(--radius);
-        background: rgba(255, 255, 255, 0.045);
-        padding: 24px;
-      }
-
-      .faq p {
-        color: var(--muted);
-      }
-
-      .final-cta {
-        margin-top: clamp(44px, 6vw, 72px);
-        border-radius: 34px;
-        background:
-          radial-gradient(circle at 18% 10%, rgba(91, 241, 178, 0.18), transparent 28%),
-          #10223b;
-        padding: clamp(30px, 5vw, 56px);
-        color: var(--text);
-      }
-
-      .final-cta h2 {
-        max-width: 860px;
-      }
-
-      .footer {
-        background: #050b14;
-        color: var(--muted);
-        padding: 34px 0;
-        font-size: 0.95rem;
-      }
-
-      .footer-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 20px;
-      }
-
-      .footer a {
-        color: var(--text);
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        *,
-        *::before,
-        *::after {
-          scroll-behavior: auto !important;
-          transition-duration: 1ms !important;
-        }
-      }
-
-      @media (max-width: 960px) {
+      @media (max-width: 930px) {
         .hero,
-        .section-head,
-        .install-grid {
+        .grid-3,
+        .grid-2 {
           grid-template-columns: 1fr;
         }
 
-        .hero {
-          min-height: auto;
-        }
-
-        .hero-visual {
-          max-width: 720px;
-        }
-
-        .flow,
-        .features,
-        .faq-grid {
-          grid-template-columns: 1fr 1fr;
+        .meta {
+          grid-template-columns: 1fr;
         }
       }
 
-      @media (max-width: 640px) {
-        body {
-          font-size: 16px;
-        }
-
-        .shell {
-          width: min(100% - 28px, 1180px);
-        }
-
+      @media (max-width: 620px) {
         .nav {
-          align-items: flex-start;
           flex-direction: column;
-          padding: 18px 0;
+          align-items: flex-start;
         }
 
         .nav-links {
           width: 100%;
           justify-content: space-between;
-        }
-
-        h1 {
-          font-size: clamp(3.05rem, 16vw, 5.4rem);
         }
 
         .actions {
@@ -721,232 +314,137 @@
 
         .button {
           width: 100%;
-        }
-
-        .stats,
-        .flow,
-        .features,
-        .faq-grid {
-          grid-template-columns: 1fr;
-        }
-
-        .download-card {
-          position: static;
-          width: 100%;
-          margin-top: 14px;
-        }
-
-        .footer-row {
-          align-items: flex-start;
-          flex-direction: column;
+          text-align: center;
         }
       }
     </style>
   </head>
   <body>
-    <div class="page">
-      <header class="hero-wrap">
-        <nav class="shell nav" aria-label="Primary navigation">
-          <a class="brand" href="#top" aria-label="Circle Course Downloader home">
-            <span class="brand-mark" aria-hidden="true">C</span>
-            <span>Circle Course Downloader</span>
-          </a>
-          <div class="nav-links">
-            <a href="#install">Install</a>
-            <a href="#features">Features</a>
-            <a href="https://github.com/paladini/circle-courses-downloader">GitHub</a>
+    <header class="shell">
+      <nav class="nav" aria-label="Primary navigation">
+        <a class="brand" href="#top" aria-label="Circle Courses Downloader home">
+          <span class="logo" aria-hidden="true">C</span>
+          <span>Circle Courses Downloader</span>
+        </a>
+        <div class="nav-links">
+          <a href="#how">How it works</a>
+          <a href="#install">Install</a>
+          <a href="#safety">Fair-use</a>
+          <a href="https://github.com/paladini/circle-courses-downloader">GitHub</a>
+        </div>
+      </nav>
+
+      <section class="hero" id="top" aria-labelledby="hero-title">
+        <div>
+          <span class="pill">Free · Open Source · MIT Licensed</span>
+          <h1 id="hero-title">Download Circle courses and watch offline.</h1>
+          <p>
+            Circle Courses Downloader is a modern Python CLI for saving course videos you already have access to. Sign in
+            with your own account in a real browser, collect lesson videos, and keep a clean offline library.
+          </p>
+          <div class="actions">
+            <a class="button primary" href="https://pypi.org/project/circle-course-downloader/">Get it on PyPI</a>
+            <a class="button secondary" href="https://github.com/paladini/circle-courses-downloader">View source</a>
           </div>
-        </nav>
+        </div>
 
-        <section class="shell hero" id="top" aria-labelledby="hero-title">
-          <div>
-            <p class="pill"><span class="pulse" aria-hidden="true"></span>Circle videos, saved locally</p>
-            <h1 id="hero-title">Download Circle courses for <span class="accent">offline viewing.</span></h1>
-            <p class="hero-copy">
-              A focused Python CLI that opens your browser, finds course lessons, and saves the videos into a local
-              folder. Simple enough for one course, reliable enough for your whole library.
-            </p>
-            <div class="actions" aria-label="Project links">
-              <a class="button primary" href="https://pypi.org/project/circle-course-downloader/">Download from PyPI</a>
-              <a class="button secondary" href="#install">See install commands</a>
-              <a class="button secondary" href="https://github.com/paladini/circle-courses-downloader">View source</a>
-            </div>
-            <div class="stats" aria-label="Project facts">
-              <div class="stat">
-                <strong>2 commands</strong>
-                <span class="stat-label">to install</span>
-              </div>
-              <div class="stat">
-                <strong>MP4</strong>
-                <span class="stat-label">video output</span>
-              </div>
-              <div class="stat">
-                <strong>CSV + JSON</strong>
-                <span class="stat-label">course manifests</span>
-              </div>
-            </div>
+        <aside class="hero-card" aria-label="Project preview">
+          <img
+            src="assets/circle-course-downloader-preview.png"
+            width="1200"
+            height="760"
+            alt="Circle Courses Downloader preview showing course video files saved for offline viewing"
+            fetchpriority="high"
+          />
+          <div class="meta" aria-label="Project highlights">
+            <div><strong>Browser login</strong><span>No copied cookies</span></div>
+            <div><strong>JSON + CSV</strong><span>Manifest exports</span></div>
+            <div><strong>MP4 output</strong><span>Offline ready videos</span></div>
           </div>
+        </aside>
+      </section>
+    </header>
 
-          <div class="hero-visual">
-            <img
-              class="preview"
-              src="assets/circle-course-downloader-preview.png"
-              width="1200"
-              height="760"
-              alt="Circle Course Downloader preview showing downloaded course videos in a local media library"
-              fetchpriority="high"
-            />
-            <div class="download-card" aria-label="Download progress example">
-              <div class="progress-row">
-                <span>Course backup</span>
-                <span>84%</span>
-              </div>
-              <div class="bar"><span></span></div>
-            </div>
-          </div>
-        </section>
-      </header>
+    <main class="shell">
+      <section id="how" aria-labelledby="how-title">
+        <h2 id="how-title">Fast workflow, minimal friction.</h2>
+        <p class="lead">Open your course, authenticate normally, and let the CLI manage lesson discovery and downloads.</p>
+        <div class="grid-3">
+          <article class="card">
+            <h3>1. Paste your course URL</h3>
+            <p>Point the tool to a Circle course you can already access with your account.</p>
+          </article>
+          <article class="card">
+            <h3>2. Sign in through Chromium</h3>
+            <p>The project uses a dedicated Playwright browser profile and keeps auth local on your machine.</p>
+          </article>
+          <article class="card">
+            <h3>3. Save and watch later</h3>
+            <p>Videos are downloaded to your output folder with structured filenames and manifests.</p>
+          </article>
+        </div>
+      </section>
 
-      <main>
-        <section class="section soft" aria-labelledby="flow-title">
-          <div class="shell">
-            <div class="section-head">
-              <h2 id="flow-title">From course page to watch-anywhere files.</h2>
-              <p class="lead">
-                Paste a Circle course URL, sign in through the browser, and the downloader handles discovery, filenames,
-                video downloads, and manifests.
-              </p>
-            </div>
-
-            <div class="flow">
-              <article class="step">
-                <span class="step-number">01</span>
-                <h3>Open the course</h3>
-                <p>Start from the course URL. The CLI opens Chromium when it needs a browser session.</p>
-              </article>
-              <article class="step">
-                <span class="step-number">02</span>
-                <h3>Collect the lessons</h3>
-                <p>Lesson pages are scanned for video streams from Circle and common embedded providers.</p>
-              </article>
-              <article class="step">
-                <span class="step-number">03</span>
-                <h3>Save everything</h3>
-                <p>Videos land in your output folder with readable names and matching JSON/CSV manifests.</p>
-              </article>
-            </div>
-          </div>
-        </section>
-
-        <section class="section dark" id="install" aria-labelledby="install-title">
-          <div class="shell install-grid">
-            <div>
-              <div class="section-head" style="display: block; margin-bottom: 28px">
-                <h2 id="install-title">Install, paste a course URL, press enter.</h2>
-              </div>
-              <div class="terminal" aria-label="Installation commands">
-                <div class="terminal-top">
-                  <div class="lights" aria-hidden="true"><span></span><span></span><span></span></div>
-                  <span class="mini">terminal</span>
-                </div>
-                <pre><code><span class="cmd-comment"># install</span>
-python -m pip install circle-course-downloader
+      <section id="install" aria-labelledby="install-title">
+        <h2 id="install-title">Install in minutes.</h2>
+        <p class="lead">Python 3.11+ is required. Install the package, install Chromium, then run one command.</p>
+        <div class="code-block" aria-label="Install commands">
+          <pre><code>python -m pip install circle-course-downloader
 python -m playwright install chromium
 
-<span class="cmd-comment"># download a course</span>
-circle-course-downloader download "https://your-community.com/c/course"</code></pre>
-              </div>
-            </div>
-
-            <div class="install-copy">
-              <p class="pill"><span class="pulse" aria-hidden="true"></span>Available on PyPI</p>
-              <p>
-                The package page is the main download destination for users. It includes release history, install
-                metadata, and the latest published version.
-              </p>
-              <a class="button primary" href="https://pypi.org/project/circle-course-downloader/">Open PyPI package</a>
-            </div>
-          </div>
-        </section>
-
-        <section class="section surface" id="features" aria-labelledby="features-title">
-          <div class="shell">
-            <div class="section-head">
-              <h2 id="features-title">A downloader that stays out of your way.</h2>
-              <p class="lead">
-                No bulky interface, no browser extension, no account dashboard. Just a small CLI for saving lessons when
-                you need offline access.
-              </p>
-            </div>
-
-            <div class="features">
-              <article class="feature">
-                <span class="kbd">Browser session</span>
-                <h3>Sign in like normal</h3>
-                <p>The first run opens Chromium. Future runs can reuse the saved browser profile.</p>
-              </article>
-              <article class="feature">
-                <span class="kbd">Dry run</span>
-                <h3>Preview before saving</h3>
-                <p>Inspect the generated download commands before videos are written to disk.</p>
-              </article>
-              <article class="feature">
-                <span class="kbd">Manifests</span>
-                <h3>Track every lesson</h3>
-                <p>Each run writes JSON and CSV files with lesson titles, providers, and detected video URLs.</p>
-              </article>
-              <article class="feature">
-                <span class="kbd">Open source</span>
-                <h3>Built in public</h3>
-                <p>MIT licensed, easy to inspect, and ready for practical contributions.</p>
-              </article>
-            </div>
-
-            <div class="final-cta">
-              <h2>Ready to save your next Circle course?</h2>
-              <div class="actions">
-                <a class="button primary" href="https://pypi.org/project/circle-course-downloader/">Download from PyPI</a>
-                <a class="button secondary" href="https://github.com/paladini/circle-courses-downloader">Read the README</a>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="section dark" aria-labelledby="faq-title">
-          <div class="shell">
-            <div class="section-head">
-              <h2 id="faq-title">Quick answers.</h2>
-              <p class="lead">Useful context for users, search engines, and AI assistants summarizing the project.</p>
-            </div>
-
-            <div class="faq-grid">
-              <article class="faq">
-                <h3>What is this?</h3>
-                <p>A Python command-line tool for downloading videos from Circle courses and saving them locally.</p>
-              </article>
-              <article class="faq">
-                <h3>Where do I get it?</h3>
-                <p>The package is published on PyPI at <code>circle-course-downloader</code>.</p>
-              </article>
-              <article class="faq">
-                <h3>What does it create?</h3>
-                <p>MP4 video downloads plus JSON and CSV manifests with lesson metadata.</p>
-              </article>
-              <article class="faq">
-                <h3>Is it open source?</h3>
-                <p>Yes. The source code is available on GitHub under the MIT license.</p>
-              </article>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <footer class="footer">
-        <div class="shell footer-row">
-          <span>Circle Course Downloader is open source under the MIT license.</span>
-          <a href="https://github.com/paladini/circle-courses-downloader">GitHub repository</a>
+circle-course-downloader download "https://your-community.example.com/c/course"</code></pre>
         </div>
-      </footer>
-    </div>
+      </section>
+
+      <section aria-labelledby="features-title">
+        <h2 id="features-title">Built for practical offline learning.</h2>
+        <div class="grid-2">
+          <article class="card">
+            <h3>Browser-only authentication</h3>
+            <p>No password prompt in terminal, no token copy/paste flow, and no reading from your default browser data.</p>
+          </article>
+          <article class="card">
+            <h3>Manifest-driven downloads</h3>
+            <p>Each run exports machine-readable JSON/CSV so your saved lessons remain organized and auditable.</p>
+          </article>
+          <article class="card">
+            <h3>Modern provider support</h3>
+            <p>Detects Circle-hosted streams plus common embedded video providers used in course lessons.</p>
+          </article>
+          <article class="card">
+            <h3>Open source transparency</h3>
+            <p>Public codebase, permissive MIT license, and a focused scope designed around respectful usage.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="safety" aria-labelledby="safety-title">
+        <h2 id="safety-title">Personal/fair-use boundary.</h2>
+        <article class="card fair-use">
+          <h3>Use responsibly</h3>
+          <p>
+            This tool is intended only for personal/offline use of content you are authorized to access. It does not bypass
+            DRM, paywalls, 2FA, captchas, or Circle access controls, and it should be used in line with service terms.
+          </p>
+        </article>
+      </section>
+
+      <section aria-labelledby="cta-title">
+        <article class="card">
+          <h2 id="cta-title">Start building your offline course library today.</h2>
+          <p class="lead">Free forever. Open source from day one.</p>
+          <div class="actions">
+            <a class="button primary" href="https://pypi.org/project/circle-course-downloader/">Install from PyPI</a>
+            <a class="button secondary" href="https://github.com/paladini/circle-courses-downloader">Star on GitHub</a>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer>
+      <div class="shell">
+        Circle Courses Downloader is an independent open source project and is not affiliated with Circle.
+      </div>
+    </footer>
   </body>
 </html>
