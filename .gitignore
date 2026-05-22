@@ -12,5 +12,9 @@ __pycache__/
 .pytest_cache/
 manifest.probed.json
 manifest.probed.csv
+manifest.json
+manifest.csv
+dist/
+build/
 
 training/

@@ -11,6 +11,8 @@ from .models import save_csv, save_manifest
 DEFAULT_SESSION = Path(".auth/session.json")
 DEFAULT_TIMEOUT_MS = 45_000
 DEFAULT_VIDEO_TIMEOUT_MS = 20_000
+MANIFEST_JSON = "manifest.json"
+MANIFEST_CSV = "manifest.csv"
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -44,10 +46,8 @@ def download_course(args: argparse.Namespace) -> None:
     args.video_timeout_ms = DEFAULT_VIDEO_TIMEOUT_MS
 
     lessons = discover_and_probe_with_browser(args, args.course_url)
-    save_manifest(Path("manifest.json"), lessons)
-    save_csv(Path("manifest.csv"), lessons)
-    save_manifest(Path("manifest.probed.json"), lessons)
-    save_csv(Path("manifest.probed.csv"), lessons)
+    save_manifest(args.output_dir / MANIFEST_JSON, lessons)
+    save_csv(args.output_dir / MANIFEST_CSV, lessons)
 
     download_lessons(args, lessons)
 

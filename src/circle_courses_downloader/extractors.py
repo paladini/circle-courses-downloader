@@ -2,13 +2,11 @@ from __future__ import annotations
 
 import html
 import re
-from pathlib import Path
 from urllib.parse import urljoin, urlparse
 
 from .models import Lesson
 
 
-DEFAULT_HTML = "Workshop IA 5_2026 - Gravação _ Tech Leads club.html"
 LESSON_RE = re.compile(
     r"<a\b(?P<attrs>[^>]*)href=[\"'](?P<url>(?:https?://[^\"']+)?/c/[^\"']+/sections/"
     r"(?P<section_id>\d+)/lessons/(?P<lesson_id>\d+))[\"'][^>]*>(?P<body>.*?)</a>",
@@ -103,11 +101,6 @@ def extract_lessons_from_html(page: str, base_url: str | None = None) -> list[Le
     return lessons
 
 
-def extract_lessons(html_path: Path) -> list[Lesson]:
-    page = html_path.read_text(encoding="utf-8", errors="ignore")
-    return extract_lessons_from_html(page)
-
-
 def normalize_scraped_url(value: str) -> str:
     value = html.unescape(value)
     value = value.replace("\\/", "/").replace("\\u002F", "/")
@@ -164,25 +157,6 @@ def find_video_urls(page: str, extra_urls: list[str] | None = None) -> list[str]
     return sorted(video_urls, key=lambda url: (PROVIDER_PRIORITY.get(classify_provider(url), 99), url))
 
 
-def extract_current_lesson_ids(page: str) -> list[str]:
-    patterns = [
-        r"saved from url=\(\d+\)(https?://[^\s]+)",
-        r'<a\b[^>]*aria-current=["\']page["\'][^>]*href=["\']([^"\']+)["\']',
-    ]
-    ids: list[str] = []
-    seen: set[str] = set()
-
-    for pattern in patterns:
-        for match in re.finditer(pattern, page, flags=re.IGNORECASE):
-            url = html.unescape(match.group(1))
-            lesson_match = re.search(r"/lessons/(\d+)", url)
-            if lesson_match and lesson_match.group(1) not in seen:
-                seen.add(lesson_match.group(1))
-                ids.append(lesson_match.group(1))
-
-    return ids
-
-
 def infer_login_url_from_origin(
     course_url: str | None = None,
 ) -> str | None:
@@ -191,13 +165,3 @@ def infer_login_url_from_origin(
         if parsed.scheme and parsed.netloc:
             return f"{parsed.scheme}://{parsed.netloc}/users/sign_in"
     return None
-
-
-def collect_html_files(paths: list[Path]) -> list[Path]:
-    files: list[Path] = []
-    for path in paths:
-        if path.is_dir():
-            files.extend(sorted(path.rglob("*.html")))
-        elif path.is_file():
-            files.append(path)
-    return files

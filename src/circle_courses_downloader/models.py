@@ -18,14 +18,8 @@ class Lesson:
     video_urls: list[str] = field(default_factory=list)
 
 
-def load_manifest(path: Path) -> list[Lesson]:
-    data = json.loads(path.read_text(encoding="utf-8"))
-    return [Lesson(**item) for item in data["lessons"]]
-
-
-def save_manifest(path: Path, lessons: list[Lesson], source_html: Path | None = None) -> None:
+def save_manifest(path: Path, lessons: list[Lesson]) -> None:
     payload = {
-        "source_html": str(source_html) if source_html else None,
         "lesson_count": len(lessons),
         "lessons": [asdict(lesson) for lesson in lessons],
     }
