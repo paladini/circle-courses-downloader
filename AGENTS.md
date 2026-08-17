@@ -1,6 +1,7 @@
 # Repository Instructions
 
-This project is a public Python CLI for downloading Circle course videos that the user can already access through their own account.
+This project is a public Python CLI for downloading Circle course and standalone
+community page videos that the user can already access through their own account.
 
 ## Guardrails
 
@@ -27,4 +28,5 @@ Run the relevant checks before handing off changes:
 .\.venv\Scripts\python -m twine check dist/*
 .\.venv\Scripts\circle-course-downloader --help
 .\.venv\Scripts\circle-course-downloader download --help
+.\.venv\Scripts\circle-course-downloader download-standalone --help
 ```

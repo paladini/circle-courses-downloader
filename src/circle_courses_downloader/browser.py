@@ -5,7 +5,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from shutil import rmtree
 
-from .extractors import classify_provider, extract_lessons_from_html, find_video_urls
+from .extractors import (
+    classify_provider,
+    extract_lessons_from_html,
+    find_video_urls,
+    standalone_lesson_from_page,
+)
 from .models import Lesson
 
 
@@ -20,6 +25,12 @@ VIDEO_WAIT_JS = """() => {
 LESSONS_WAIT_JS = """() => {
   return !!document.querySelector('a[href*="/sections/"][href*="/lessons/"]');
 }"""
+PLAY_BUTTON_SELECTORS = (
+    'button[aria-label*="Play" i]',
+    '[aria-label*="play" i]',
+    'button[class*="play" i]',
+    "video",
+)
 
 
 @dataclass
@@ -75,18 +86,89 @@ def wait_for_manual_login(page, auth: BrowserAuth) -> None:
     input()
     try:
         page.wait_for_load_state("networkidle", timeout=auth.timeout_ms)
-    except Exception:  # noqa: BLE001 - some logged-in pages keep long-polling; the course check below is authoritative.
+    except Exception:  # noqa: BLE001 - some logged-in pages keep long-polling; the page check below is authoritative.
         pass
     save_session(page, auth)
 
 
-def open_course_page(page, course_url: str, timeout_ms: int) -> None:
-    print(f"Opening course: {course_url}")
-    page.goto(course_url, wait_until="domcontentloaded", timeout=timeout_ms)
+def open_page(page, page_url: str, timeout_ms: int, label: str = "page") -> None:
+    print(f"Opening {label}: {page_url}")
+    page.goto(page_url, wait_until="domcontentloaded", timeout=timeout_ms)
 
 
 def is_login_page(page) -> bool:
     return "/users/sign_in" in page.url or "/users/sign_up" in page.url
+
+
+def build_browser_auth(args) -> BrowserAuth:
+    return BrowserAuth(
+        login_url=args.login_url,
+        storage_state=args.session,
+        profile_dir=profile_dir_from_session(args.session),
+        headless=args.headless,
+        timeout_ms=args.timeout_ms,
+    )
+
+
+def authenticate_and_open(playwright, auth: BrowserAuth, args, page_url: str, page_label: str = "page"):
+    needs_login = args.force_login or not auth.profile_dir.exists()
+    if args.force_login:
+        reset_auth_state(auth)
+    context, page = open_persistent_context(playwright, auth, needs_login=needs_login)
+    open_page(page, page_url, args.timeout_ms, page_label)
+    if is_login_page(page) and not needs_login:
+        print("The saved session is not authenticated for this page. Reopening a visible browser.")
+        context.close()
+        needs_login = True
+        context, page = open_persistent_context(playwright, auth, needs_login=needs_login)
+        open_page(page, page_url, args.timeout_ms, page_label)
+
+    if needs_login or is_login_page(page):
+        if is_login_page(page):
+            print("The page opened a login page.")
+        wait_for_manual_login(page, auth)
+        open_page(page, page_url, args.timeout_ms, page_label)
+        if is_login_page(page):
+            raise AuthRequiredError("Circle still shows the login page after authentication.")
+
+    return context, page
+
+
+def wait_for_video_markers(page, video_timeout_ms: int) -> None:
+    try:
+        from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+
+        page.wait_for_function(VIDEO_WAIT_JS, timeout=video_timeout_ms)
+    except PlaywrightTimeoutError:
+        pass
+
+
+def try_trigger_video_playback(page, video_timeout_ms: int) -> None:
+    try:
+        from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+
+        if page.evaluate(VIDEO_WAIT_JS):
+            return
+        for selector in PLAY_BUTTON_SELECTORS:
+            try:
+                element = page.locator(selector).first
+                if element.is_visible(timeout=1000):
+                    element.click(timeout=3000)
+                    break
+            except Exception:  # noqa: BLE001 - playback controls vary by page.
+                continue
+        page.wait_for_function(VIDEO_WAIT_JS, timeout=video_timeout_ms)
+    except PlaywrightTimeoutError:
+        pass
+    except Exception:  # noqa: BLE001 - playback controls vary by page.
+        pass
+
+
+def probe_page_for_video(page, video_timeout_ms: int) -> list[str]:
+    wait_for_video_markers(page, video_timeout_ms)
+    if not page.evaluate(VIDEO_WAIT_JS):
+        try_trigger_video_playback(page, video_timeout_ms)
+    return find_video_urls(page.content(), extra_urls=resource_urls(page))
 
 
 def discover_and_probe_with_browser(args, course_url: str) -> list[Lesson]:
@@ -96,36 +178,11 @@ def discover_and_probe_with_browser(args, course_url: str) -> list[Lesson]:
     except ImportError as exc:
         raise RuntimeError("Playwright is not installed. Run: python -m pip install -r requirements.txt") from exc
 
-    auth = BrowserAuth(
-        login_url=args.login_url,
-        storage_state=args.session,
-        profile_dir=profile_dir_from_session(args.session),
-        headless=args.headless,
-        timeout_ms=args.timeout_ms,
-    )
+    auth = build_browser_auth(args)
 
     with sync_playwright() as playwright:
-        needs_login = args.force_login or not auth.profile_dir.exists()
-        if args.force_login:
-            reset_auth_state(auth)
-        context, page = open_persistent_context(playwright, auth, needs_login=needs_login)
+        context, page = authenticate_and_open(playwright, auth, args, course_url, page_label="course")
         try:
-            open_course_page(page, course_url, args.timeout_ms)
-            if is_login_page(page) and not needs_login:
-                print("The saved session is not authenticated for this course. Reopening a visible browser.")
-                context.close()
-                needs_login = True
-                context, page = open_persistent_context(playwright, auth, needs_login=needs_login)
-                open_course_page(page, course_url, args.timeout_ms)
-
-            if needs_login or is_login_page(page):
-                if is_login_page(page):
-                    print("The course opened a login page.")
-                wait_for_manual_login(page, auth)
-                open_course_page(page, course_url, args.timeout_ms)
-                if is_login_page(page):
-                    raise AuthRequiredError("Circle still shows the login page after authentication.")
-
             try:
                 page.wait_for_function(LESSONS_WAIT_JS, timeout=args.timeout_ms)
             except PlaywrightTimeoutError:
@@ -140,11 +197,7 @@ def discover_and_probe_with_browser(args, course_url: str) -> list[Lesson]:
                     page.goto(lesson.url, wait_until="domcontentloaded", timeout=args.timeout_ms)
                     if is_login_page(page):
                         raise RuntimeError("The saved browser session is not authenticated.")
-                    try:
-                        page.wait_for_function(VIDEO_WAIT_JS, timeout=args.video_timeout_ms)
-                    except PlaywrightTimeoutError:
-                        pass
-                    urls = find_video_urls(page.content(), extra_urls=resource_urls(page))
+                    urls = probe_page_for_video(page, args.video_timeout_ms)
                     lesson.video_urls = urls
                     lesson.provider = classify_provider(urls[0]) if urls else "not-found"
                     print(f"[{lesson.index:02d}] {lesson.provider:17} {lesson.title}")
@@ -155,5 +208,34 @@ def discover_and_probe_with_browser(args, course_url: str) -> list[Lesson]:
 
             save_session(page, auth)
             return lessons
+        finally:
+            context.close()
+
+
+def probe_standalone_with_browser(args, page_url: str) -> list[Lesson]:
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError as exc:
+        raise RuntimeError("Playwright is not installed. Run: python -m pip install -r requirements.txt") from exc
+
+    auth = build_browser_auth(args)
+
+    with sync_playwright() as playwright:
+        context, page = authenticate_and_open(playwright, auth, args, page_url, page_label="page")
+        try:
+            if is_login_page(page):
+                raise RuntimeError("The saved browser session is not authenticated.")
+
+            urls = probe_page_for_video(page, args.video_timeout_ms)
+            lesson = standalone_lesson_from_page(page_url, page.content())
+            lesson.video_urls = urls
+            lesson.provider = classify_provider(urls[0]) if urls else "not-found"
+            print(f"[{lesson.index:02d}] {lesson.provider:17} {lesson.title}")
+
+            if not urls:
+                raise RuntimeError("No downloadable video URLs were found on this page.")
+
+            save_session(page, auth)
+            return [lesson]
         finally:
             context.close()

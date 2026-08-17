@@ -1,7 +1,8 @@
 # Contributing
 
-Keep changes focused on the browser-only Circle course download flow. Don't add
-terminal password prompts, raw cookie input, or alternate authentication paths.
+Keep changes focused on the browser-only Circle course and standalone page download
+flow. Don't add terminal password prompts, raw cookie input, or alternate
+authentication paths.
 
 ## Development setup
 
@@ -21,6 +22,7 @@ python -m venv .venv
 .\.venv\Scripts\python -m twine check dist/*
 .\.venv\Scripts\circle-course-downloader --help
 .\.venv\Scripts\circle-course-downloader download --help
+.\.venv\Scripts\circle-course-downloader download-standalone --help
 ```
 
 ## Security
