@@ -50,6 +50,7 @@ jobs:
         run: |
           circle-course-downloader --help
           circle-course-downloader download --help
+          circle-course-downloader download-standalone --help
 
       - name: Build distributions
         run: python -m build

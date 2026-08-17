@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "circle-course-downloader"
-version = "0.1.3"
-description = "Personal downloader for Circle course lesson videos accessible from your own account."
+version = "0.1.4"
+description = "Personal downloader for Circle course and standalone community page videos accessible from your own account."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
