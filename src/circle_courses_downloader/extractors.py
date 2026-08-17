@@ -21,6 +21,12 @@ YOUTUBE_ID_RE = re.compile(
     r"([A-Za-z0-9_-]{6,})",
     re.IGNORECASE,
 )
+OG_TITLE_RE = re.compile(
+    r'<meta\s+property=["\']og:title["\']\s+content=["\'](?P<title>[^"\']+)["\']',
+    re.IGNORECASE,
+)
+TITLE_RE = re.compile(r"<title>(?P<title>.*?)</title>", re.IGNORECASE | re.DOTALL)
+COMMUNITY_SUFFIX_RE = re.compile(r"\s*\|\s*.+$")
 
 PROVIDERS = {
     "circle-hls": ("cdn-media.circle.so",),
@@ -165,3 +171,38 @@ def infer_login_url_from_origin(
         if parsed.scheme and parsed.netloc:
             return f"{parsed.scheme}://{parsed.netloc}/users/sign_in"
     return None
+
+
+def extract_page_title(page_html: str, page_url: str | None = None) -> str:
+    og_match = OG_TITLE_RE.search(page_html)
+    if og_match:
+        title = strip_tags(og_match.group("title"))
+    else:
+        title_match = TITLE_RE.search(page_html)
+        if title_match:
+            title = strip_tags(title_match.group("title"))
+        elif page_url:
+            slug = urlparse(page_url).path.rstrip("/").split("/")[-1]
+            title = slug.replace("-", " ").strip() or "standalone-page"
+        else:
+            title = "standalone-page"
+
+    title = COMMUNITY_SUFFIX_RE.sub("", title).strip()
+    return title or "standalone-page"
+
+
+def standalone_slug_from_url(page_url: str) -> str:
+    slug = urlparse(page_url).path.rstrip("/").split("/")[-1]
+    sanitized = re.sub(r"[^\w\-]", "-", slug, flags=re.UNICODE)
+    sanitized = re.sub(r"-+", "-", sanitized).strip("-")
+    return sanitized or "standalone"
+
+
+def standalone_lesson_from_page(page_url: str, page_html: str) -> Lesson:
+    return Lesson(
+        index=1,
+        section_id="standalone",
+        lesson_id=standalone_slug_from_url(page_url),
+        url=page_url,
+        title=extract_page_title(page_html, page_url=page_url),
+    )

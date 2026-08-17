@@ -4,9 +4,9 @@
 [![Python](https://img.shields.io/pypi/pyversions/circle-course-downloader)](https://pypi.org/project/circle-course-downloader/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-A small, practical CLI for saving Circle course videos that you can already access with your own account.
+A small, practical CLI for saving Circle course and community page videos that you can already access with your own account.
 
-Circle Course Downloader opens a dedicated Chromium profile, lets you sign in normally, discovers course lessons through the authenticated page, and downloads the video streams with `yt-dlp`. It is built for personal offline viewing, backups, and unreliable connections.
+Circle Course Downloader opens a dedicated Chromium profile, lets you sign in normally, discovers videos from course pages or standalone community posts, and downloads the video streams with `yt-dlp`. It is built for personal offline viewing, backups, and unreliable connections.
 
 > This project is unofficial and is not affiliated with Circle. It does not bypass DRM, paywalls, 2FA, captchas, or access controls. Use it only for content you are authorized to view and download.
 
@@ -15,6 +15,7 @@ Circle Course Downloader opens a dedicated Chromium profile, lets you sign in no
 - Browser-only authentication: no terminal passwords, copied cookies, or pasted tokens.
 - Reusable local session stored in a dedicated Playwright Chromium profile.
 - Course lesson discovery from real Circle course pages.
+- Standalone page downloads for community posts and events with a single embedded video.
 - Video URL detection for Circle HLS, direct video links, YouTube, Vimeo, Wistia, Loom, Mux, and Cloudflare Stream.
 - `yt-dlp` downloads with resume support and MP4 merge output.
 - `manifest.json` and `manifest.csv` exports for auditing what was found.
@@ -49,6 +50,14 @@ circle-course-downloader download "https://your-community.example.com/c/another-
 
 Downloaded videos are saved to `downloads/` by default.
 
+For a single community post or event page with one embedded video, use `download-standalone`:
+
+```bash
+circle-course-downloader download-standalone "https://your-community.example.com/c/space-slug/post-slug"
+```
+
+Use `download` for full course pages that list lessons under `/sections/.../lessons/...`.
+
 ## How It Works
 
 1. Opens the requested Circle course page in a persistent Chromium profile.
@@ -72,17 +81,11 @@ Generated manifests can contain signed media URLs. Do not publish or commit them
 
 ## CLI Usage
 
+### Download a course
+
 ```bash
 circle-course-downloader download [OPTIONS] COURSE_URL
 ```
-
-| Option | Description |
-| --- | --- |
-| `--output-dir PATH` | Save videos and manifests somewhere other than `downloads/`. |
-| `--session PATH` | Use a different exported session file. The browser profile is stored next to it. |
-| `--force-login` | Delete the saved auth state and open a fresh visible login browser. |
-| `--headless` | Run Chromium without a visible window after a saved browser profile exists. |
-| `--dry-run` | Discover lessons and print the `yt-dlp` commands without downloading videos. |
 
 Examples:
 
@@ -93,6 +96,29 @@ circle-course-downloader download "https://your-community.example.com/c/course-s
 circle-course-downloader download "https://your-community.example.com/c/course-slug" --headless
 ```
 
+### Download a standalone page
+
+```bash
+circle-course-downloader download-standalone [OPTIONS] PAGE_URL
+```
+
+Examples:
+
+```bash
+circle-course-downloader download-standalone "https://your-community.example.com/c/eventos/my-event" --dry-run
+circle-course-downloader download-standalone "https://your-community.example.com/c/eventos/my-event" --output-dir "./my-videos"
+```
+
+Both commands share the same options:
+
+| Option | Description |
+| --- | --- |
+| `--output-dir PATH` | Save videos and manifests somewhere other than `downloads/`. |
+| `--session PATH` | Use a different exported session file. The browser profile is stored next to it. |
+| `--force-login` | Delete the saved auth state and open a fresh visible login browser. |
+| `--headless` | Run Chromium without a visible window after a saved browser profile exists. |
+| `--dry-run` | Discover videos and print the `yt-dlp` commands without downloading videos. |
+
 `--headless` is useful only after a saved browser profile already exists. First login always uses a visible browser window.
 
 ## Install From Source
@@ -101,6 +127,7 @@ Clone the repository, create a virtual environment, install the package, and ins
 
 ```powershell
 python -m venv .venv
+.\.venv\Scripts\python -m pip install -r requirements.txt
 .\.venv\Scripts\python -m pip install .
 .\.venv\Scripts\python -m playwright install chromium
 ```
@@ -128,6 +155,7 @@ Run the local checks before opening a pull request:
 .\.venv\Scripts\python -m twine check dist/*
 .\.venv\Scripts\circle-course-downloader --help
 .\.venv\Scripts\circle-course-downloader download --help
+.\.venv\Scripts\circle-course-downloader download-standalone --help
 ```
 
 The package metadata is defined in `pyproject.toml`, and the CLI entry point is:
@@ -142,7 +170,7 @@ Circle Course Downloader uses its own Chromium profile under `.auth/`. It does n
 
 ## Contributing
 
-Contributions are welcome when they keep the project focused on the browser-only Circle course download flow.
+Contributions are welcome when they keep the project focused on the browser-only Circle course and standalone page download flow.
 
 Good first improvements include:
 

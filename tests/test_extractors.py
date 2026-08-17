@@ -1,8 +1,10 @@
 from circle_courses_downloader.extractors import (
     classify_provider,
     extract_lessons_from_html,
+    extract_page_title,
     find_video_urls,
     infer_login_url_from_origin,
+    standalone_lesson_from_page,
 )
 
 
@@ -51,3 +53,52 @@ def test_classify_provider_and_login_url() -> None:
         "https://community.example.com/users/sign_in"
     )
     assert infer_login_url_from_origin("not-a-url") is None
+
+
+def test_extract_page_title_prefers_og_title() -> None:
+    html = """
+    <head>
+      <meta property="og:title" content="Harness Engineering na Prática | Tech Leads club" />
+      <title>Fallback title</title>
+    </head>
+    """
+
+    assert extract_page_title(html) == "Harness Engineering na Prática"
+
+
+def test_extract_page_title_falls_back_to_title_tag() -> None:
+    html = "<html><head><title>Event replay | Community</title></head></html>"
+
+    assert extract_page_title(html) == "Event replay"
+
+
+def test_extract_page_title_falls_back_to_url_slug() -> None:
+    page_url = "https://community.example.com/c/eventos/my-event-slug"
+
+    assert extract_page_title("<html></html>", page_url=page_url) == "my event slug"
+
+
+def test_standalone_lesson_from_page() -> None:
+    page_url = "https://community.example.com/c/eventos-da-comunidade/my-event-slug"
+    html = '<meta property="og:title" content="My Event | Community" />'
+
+    lesson = standalone_lesson_from_page(page_url, html)
+
+    assert lesson.index == 1
+    assert lesson.section_id == "standalone"
+    assert lesson.lesson_id == "my-event-slug"
+    assert lesson.url == page_url
+    assert lesson.title == "My Event"
+
+
+def test_find_video_urls_on_post_like_html() -> None:
+    html = """
+    <script>
+      window.stream = "https:\\/\\/stream.mux.com\\/abc123.m3u8";
+    </script>
+    """
+
+    urls = find_video_urls(html)
+
+    assert urls[0] == "https://stream.mux.com/abc123.m3u8"
+    assert classify_provider(urls[0]) == "mux"
